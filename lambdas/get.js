@@ -14,6 +14,11 @@ exports.handler = (event, context, callback) => {
     });
     let startTime = event.params.querystring.startTime;
     let endTime = event.params.querystring.endTime;
+    let latest = event.params.querystring.latest;
+
+    let d = new Date();
+    let time = d.getTime();
+
     let params = {
         TableName: "tank2",
         KeyConditionExpression: "tank = :tk AND #ts BETWEEN :start and :end",
@@ -22,8 +27,8 @@ exports.handler = (event, context, callback) => {
         },
         ExpressionAttributeValues: {
             ":tk": "secondary",
-            ":start": startTime,
-            ":end": endTime
+            ":start": parseInt(startTime),
+            ":end": parseInt(endTime)
         }
     };
     console.log(params);
