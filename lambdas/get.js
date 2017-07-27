@@ -4,26 +4,33 @@ const doc = require('dynamodb-doc');
 const dynamo = new doc.DynamoDB();
 
 exports.handler = (event, context, callback) => {
-
-    console.log('AJM: Received event:', JSON.stringify(event, null, 2));
-    console.log('context:', JSON.stringify(context, null, 2));
-    const done = (err, res) => {
-        console.log("AJM: in done()", err, res);
-        callback(null,{
+    console.log('Received event:', JSON.stringify(event, null, 2));
+    const done = (err, res) => callback(null, {
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
         headers: {
             'Content-Type': 'application/json',
         },
-     });
-    };
+    });
+    let startTime = event.params.querystring.startTime;
+    let endTime = event.params.querystring.endTime;
+    let latest = event.params.querystring.latest;
+
     let d = new Date();
-    let record = { 
-        "tank": "secondary",
-        "timestamp": d.getTime(), 
-        "level": event.params.querystring.level,
-        "sourceIp": event.context.sourceIp
+    let time = d.getTime();
+
+    let params = {
+        TableName: "tank2",
+        KeyConditionExpression: "tank = :tk AND #ts BETWEEN :start and :end",
+        ExpressionAttributeNames: {
+            "#ts": "timestamp"
+        },
+        ExpressionAttributeValues: {
+            ":tk": "secondary",
+            ":start": parseInt(startTime),
+            ":end": parseInt(endTime)
+        }
     };
-    console.log("writing: ", record);
-    dynamo.putItem({TableName: "tank2", Item: record}, done);
+    console.log(params);
+    dynamo.query(params, done);
 };
