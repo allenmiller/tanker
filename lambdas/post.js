@@ -5,10 +5,10 @@ const dynamo = new doc.DynamoDB();
 
 exports.handler = (event, context, callback) => {
 
-    console.log('AJM: Received event:', JSON.stringify(event, null, 2));
-    console.log('context:', JSON.stringify(context, null, 2));
+    // console.log('AJM: Received event:', JSON.stringify(event, null, 2));
+    // console.log('context:', JSON.stringify(context, null, 2));
     const done = (err, res) => {
-        console.log("AJM: in done()", err, res);
+        // console.log("AJM: in done()", err, res);
         callback(null,{
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
