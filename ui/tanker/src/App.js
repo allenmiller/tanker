@@ -14,6 +14,7 @@ class App extends Component {
         </div>
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
+            State is {this.state}
         </p>
       </div>
     );
@@ -25,7 +26,11 @@ let now = d.getTime();
 let yesterday = now - 24 * 60 * 1000;
 
 let data = tanker.getLevels(yesterday, now);
-
+data.then((levels) => {
+    console.log(levels);
+});
 console.log(data);
+
+
 
 export default App;

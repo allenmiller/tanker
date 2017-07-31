@@ -9,15 +9,31 @@ exports.handler = (event, context, callback) => {
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
         headers: {
+            'Access-Control-Allow-Origin': 'https://localhost:3000',
             'Content-Type': 'application/json',
         },
     });
-    let startTime = event.params.querystring.startTime;
-    let endTime = event.params.querystring.endTime;
-    let latest = event.params.querystring.latest;
+    let startTime;
+    let endTime;
+    let latest;
+
+    if (event.params) {
+        startTime = event.params.querystring.startTime;
+        endTime = event.params.querystring.endTime;
+        latest = event.params.querystring.latest;
+    } else {
+        startTime = event.queryStringParameters.startTime;
+        endTime = event.queryStringParameters.endTime;
+        latest = event.queryStringParameters.latest;
+    }
 
     let d = new Date();
-    let time = d.getTime();
+    let now = d.getTime();
+
+    if (latest) {
+        startTime = now - latest * 60000;
+        endTime = now;
+    }
 
     let params = {
         TableName: "tank2",
