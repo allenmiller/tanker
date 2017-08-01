@@ -21,7 +21,7 @@ exports.handler = (event, context, callback) => {
     let record = { 
         "tank": "secondary",
         "timestamp": d.getTime(), 
-        "level": event.params.querystring.level,
+        "level": parseInt(event.params.querystring.level),
         "sourceIp": event.context.sourceIp
     };
     console.log("writing: ", record);

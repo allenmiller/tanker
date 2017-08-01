@@ -18,11 +18,9 @@ class App extends React.Component {
 let d =  new Date();
 let now = d.getTime();
 let yesterday = now - 24 * 60 * 1000;
-let levels;
 
 let data = tanker.getLevels(yesterday, now);
 data.then((levels) => {
-    console.log(levels.Items);
     let arr = Array.from(levels.Items);
     console.log(arr);
     RenderApp(arr);
@@ -30,15 +28,17 @@ data.then((levels) => {
 
 function RenderApp(points) {
 
+  console.log(points);
   ReactDOM.render(
-      <div className="AJM"> Hello
+
         <LineChart width={400} height={400} data={points}>
           <XAxis dataKey="timestamp"/>
           <YAxis/>
           <Legend/>
-          <Line type="monotone" dataKey="level" stroke="#8884d8" />
-        </LineChart>
-      </div>,
+
+          <Line dataKey="level" />
+        </LineChart>,
+
       document.getElementById('root')
   )
 }
