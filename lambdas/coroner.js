@@ -1,10 +1,8 @@
 exports.handler = (event, context, callback) => {
 
-    callback(null, 'Hello from Coroner Lambda');
     let url = "https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker?latest=60";
     var https = require('https');
     var AWS = require('aws-sdk');
-    console.log("AJM: calling ", url);
     var body = '';
     let bodyJson;
     https.get(url, function (result) {
@@ -15,10 +13,7 @@ exports.handler = (event, context, callback) => {
 
         result.on('end', () => {
             bodyJson = JSON.parse(body);
-            console.log("AJM: ", bodyJson);
-            console.log(bodyJson.body);
             let innerBody = JSON.parse(bodyJson.body);
-            console.log("AJM: ", innerBody);
             if (innerBody.Count === 0) {
                 console.log("ERROR: no data within the last hour!");
                 // Trigger SNS topic
