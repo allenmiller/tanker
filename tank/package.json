@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "i2c-bus": "^1.2.2",
+    "node-ads1x15": "^1.0.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "react-scripts": "1.0.10"
+    "react-scripts": "1.0.10",
+    "request": "^2.81.0"
   },
   "scripts": {
     "start": "react-scripts start",
