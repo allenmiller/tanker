@@ -15,9 +15,10 @@ class App extends React.Component {
   }
 }
 
+let msPerDay = 86400000;
 let d =  new Date();
 let now = d.getTime();
-let yesterday = now - 24 * 60 * 60 * 1000;
+let yesterday = now - msPerDay;
 
 let data = tanker.getLevels(yesterday, now);
 data.then((levels) => {
