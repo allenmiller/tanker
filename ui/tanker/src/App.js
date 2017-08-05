@@ -23,13 +23,11 @@ let yesterday = now - msPerDay;
 let data = tanker.getLevels(yesterday, now);
 data.then((levels) => {
     let arr = Array.from(levels.Items);
-    console.log(arr);
     RenderApp(arr);
 });
 
 function RenderApp(points) {
 
-  console.log(points);
   ReactDOM.render(
       <ResponsiveContainer minHeight={400} maxHeight={800}>
         <LineChart data={points}>
