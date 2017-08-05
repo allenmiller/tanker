@@ -1,41 +1,55 @@
-var ads1x15 = require('node-ads1x15');
-var chip = 1; //0 for ads1015, 1 for ads1115
+let ads1x15 = require('node-ads1x15');
+let request = require('request');
 
-//Simple usage (default ADS address on pi 2b or 3):
-var adc = new ads1x15(chip);
+let chip = 1; //0 for ads1015, 1 for ads1115
+let adc = new ads1x15(chip);
 
-// Optionally i2c address as (chip, address) or (chip, address, i2c_dev)
-// So to use  /dev/i2c-0 use the line below instead...:
+let channel = 0;
+let samplesPerSecond = '250'; // see index.js for allowed values for your chip
+let progGainAmp = '2048'; // see index.js for allowed values for your chip
 
-//    var adc = new ads1x15(chip, 0x48, 'dev/i2c-0');
+let reading;
+let factor = (5.0 * 25.4) / 512;  // (Vcc * 25.4 mm/inch) / (512 mv/inch)
+let date = new Date();
 
-var channel = 0; //channel 0, 1, 2, or 3...
-var samplesPerSecond = '250'; // see index.js for allowed values for your chip
-var progGainAmp = '2048'; // see index.js for allowed values for your chip
+let postUrl = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
 
-//somewhere to store our reading
-var reading = 0;
-let factor = (5.1 * 25.4) / 512;
+
+function post_result(record) {
+
+    console.log("Posting ", record);
+    request.post({
+	headers: {'content-type' : 'application/json'},
+	url:     postUrl + "?level="+record.distance_cm
+//	body:    record
+    }, function(error, response, body){
+	if (error) {
+	    console.log("ERROR");
+	    console.log(response);
+	    console.log(body);
+	    throw error;
+	}
+
+    });
+}
 
 if(!adc.busy)
 {
     adc.readADCSingleEnded(channel, progGainAmp, samplesPerSecond, function(err, data) {
 	if(err)
 	{
-	    //logging / troubleshooting code goes here...
 	    throw err;
 	}
-	// if you made it here, then the data object contains your reading!
-	reading = parseFloat(data);
-	// any other data processing code goes here...
 
-	// according to datasheet, (Vcc/512)/inch
+	reading = parseFloat(data);
+
 	let distance = reading * factor;
 	let record = {};
 
 	record.reading_mV = reading;
 	record.distance_cm = distance;
-	console.log(record);
+	record.time = date.getTime();
+
+	post_result(record);
     });
 }
-
