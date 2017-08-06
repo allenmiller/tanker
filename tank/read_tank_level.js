@@ -14,42 +14,42 @@ let date = new Date();
 
 let postUrl = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
 
-
 function post_result(record) {
 
-    console.log("Posting ", record);
-    request.post({
-	headers: {'content-type' : 'application/json'},
-	url:     postUrl + "?level="+record.distance_cm
-//	body:    record
-    }, function(error, response, body){
-	if (error) {
-	    console.log("ERROR");
-	    console.log(response);
-	    console.log(body);
-	    throw error;
-	}
+  console.log("Posting ", record);
+  request.post({
+    headers: {'content-type': 'application/json'},
+    url: postUrl + "?level=" + record.distance_cm,
+    body: {"name": "value"}
 
-    });
+//	body:    record
+  }, function (error, response, body) {
+    if (error) {
+      console.log("ERROR");
+      console.log(response);
+      console.log(body);
+      throw error;
+    }
+
+  });
 }
 
-if(!adc.busy)
-{
-    adc.readADCSingleEnded(channel, progGainAmp, samplesPerSecond, function(err, data) {
-	if(err)
-	{
-	    throw err;
-	}
+if (!adc.busy) {
+  adc.readADCSingleEnded(channel, progGainAmp, samplesPerSecond,
+      function (err, data) {
+        if (err) {
+          throw err;
+        }
 
-	reading = parseFloat(data);
+        reading = parseFloat(data);
 
-	let distance = reading * factor;
-	let record = {};
+        let distance = reading * factor;
+        let record = {};
 
-	record.reading_mV = reading;
-	record.distance_cm = distance;
-	record.time = date.getTime();
+        record.reading_mV = reading;
+        record.distance_cm = distance;
+        record.time = date.getTime();
 
-	post_result(record);
-    });
+        post_result(record);
+      });
 }
