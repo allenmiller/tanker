@@ -18,11 +18,10 @@ function post_result(record) {
 
   console.log("Posting ", record);
   request.post({
-    headers: {'content-type': 'application/json'},
-    url: postUrl + "?level=" + record.distance_cm,
-    body: {"name": "value"}
+      url: postUrl,
+      json: true,
+      body: record
 
-//	body:    record
   }, function (error, response, body) {
     if (error) {
       console.log("ERROR");
