@@ -21,7 +21,6 @@ function post_result(record) {
       url: postUrl,
       json: true,
       body: record
-
   }, function (error, response, body) {
     if (error) {
       console.log("ERROR");

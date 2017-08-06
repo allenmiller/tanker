@@ -5,7 +5,7 @@ const dynamo = new doc.DynamoDB();
 
 exports.handler = (event, context, callback) => {
 
-  // console.log('AJM: Received event:', JSON.stringify(event, null, 2));
+  console.log('AJM: Received event:', JSON.stringify(event, null, 2));
   // console.log('context:', JSON.stringify(context, null, 2));
   const done = (err, res) => {
     // console.log("AJM: in done()", err, res);
@@ -17,12 +17,13 @@ exports.handler = (event, context, callback) => {
       },
     });
   };
-  let d = new Date();
+
+  let body = event["body-json"];
   let record = {
     "tank": "secondary",
-    "timestamp": d.getTime(),
-    "rawLevel": parseFloat(event.params.querystirng.rawLevel),
-    "level": parseInt(event.params.querystring.level),
+    "timestamp": body.time,
+    "rawLevel": parseFloat(body.reading_mV),
+    "level": parseFloat(body.distance_cm),
     "sourceIp": event.context.sourceIp
   };
   console.log("writing: ", record);
