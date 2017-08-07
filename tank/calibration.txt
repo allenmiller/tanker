@@ -1,0 +1,8 @@
+Measured distance (cm)         Raw reading       calculaded distance
+
+208.5                              751.5           186.4
+174                                678.9           168.4
+134                                519.6           128.9
+100                                392.4            97.3
+59                                 224.8            55.8
+32                                 116.7            28.9
