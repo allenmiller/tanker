@@ -6,6 +6,7 @@ import {
   Charts,
   ChartContainer,
   ChartRow,
+  EventMarker,
   YAxis,
   LineChart,
   Resizable
@@ -15,7 +16,8 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {};
+    let now = new Date();
+    this.state = {time: now.getTime()};
   }
 
   componentDidMount() {
@@ -50,6 +52,24 @@ class App extends Component {
     });
   }
 
+  handleTrackerChanged = (t) => {
+    if (t && this.state.timeSeries) {
+      console.log(t);
+      const event = this.state.timeSeries.atTime(t);
+      const eventLevel = event.get("level");
+      let d = new Date();
+      let currTime = d.getTime();
+      this.setState({
+        tracker: event.begin().getTime(),
+        trackerValue: eventLevel,
+        trackerEvent: event,
+        time: currTime
+      });
+    } else {
+      this.setState({tracker: null, trackerValue: null, trackerEvent: null})
+    }
+  }
+
   render() {
 
     return (
@@ -62,12 +82,18 @@ class App extends Component {
               {this.state.timeRange
                   ? this.state.timeRange.end().toString() : "unknown"}.
             </p>
+            <p>
+              Rendered at {this.state.time};
+            </p>
           </div>
           <div>
             {
               this.state.timeRange
                   ? <Resizable>
-                    <ChartContainer timeRange={this.state.timeRange}>
+                    <ChartContainer
+                        timeRange={this.state.timeRange}
+                        onTrackerChanged={this.handleTrackerChanged}
+                    >
                       <ChartRow height="150">
                         <YAxis
                             id="levelAxis"
@@ -77,7 +103,15 @@ class App extends Component {
                           <LineChart
                               axis="levelAxis"
                               series={this.state.timeSeries}
-                              columns={["level"]}/>
+                              columns={["level"]}
+                          />
+                          <EventMarker>
+                            type="flag"
+                            axis="levelAxis"
+                            event={this.state.trackerEvent}
+                            column="level"
+                            info="test info"
+                          </EventMarker>
                         </Charts>
                       </ChartRow>
                     </ChartContainer>
