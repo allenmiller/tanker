@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { LineChart, Line, XAxis, YAxis, Legend, ResponsiveContainer } from 'recharts';
+import {React, Component} from 'react';
 import './App.css';
 import tanker from './services/TankerService';
+import {TimeSeries} from 'pondjs';
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Resizable } from "react-timeseries-charts";
 
 class App extends React.Component {
   render() {
@@ -28,19 +28,43 @@ data.then((levels) => {
 
 function RenderApp(points) {
 
-  ReactDOM.render(
-      <ResponsiveContainer minHeight={400} maxHeight={800}>
-        <LineChart data={points}>
-          <XAxis dataKey="timestamp"/>
-          <YAxis/>
-          <Legend/>
+  let data = {};
+  data.name = "tanker";
+  data.columns = ["time", "level"];
+  data.points=[];
+  points.forEach((p) => {
+    let point = [p.timestamp, p.level];
+    data.points.push(point);
+  });
+//  data.points = points.map((p) => {
+//    return [p.timestamp, p.level];
+//  });
 
-          <Line dataKey="level" />
-        </LineChart>
-      </ResponsiveContainer>,
 
-      document.getElementById('root')
+  console.log(data);
+  console.log(data.points);
+
+  let mySeries = new TimeSeries(data);
+  console.log(mySeries);
+  console.log(mySeries.toJSON());
+
+  console.log(mySeries.at(0).get("level"));
+  let tr = mySeries.timerange();
+  let self={};
+  self.series = mySeries;
+
+  render(
+      <Resizable>
+      <ChartContainer timeRange={tr} height={500}>
+        <ChartRow>
+          <YAxis id="level" min={0} max={10000}/>
+          <Charts>
+            <LineChart axis="level"  series={mySeries}/>
+          </Charts>
+        </ChartRow>
+      </ChartContainer>
+      </Resizable>,
+
+  document.getElementById('root')
   )
 }
-
-export default App;
