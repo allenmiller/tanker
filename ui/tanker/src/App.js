@@ -1,70 +1,132 @@
-import {React, Component} from 'react';
+import React, {Component} from 'react';
 import './App.css';
 import tanker from './services/TankerService';
 import {TimeSeries} from 'pondjs';
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Resizable } from "react-timeseries-charts";
+import {
+  Charts,
+  ChartContainer,
+  ChartRow,
+  EventMarker,
+  YAxis,
+  LineChart,
+  Resizable
+} from "react-timeseries-charts";
 
-class App extends React.Component {
+class App extends Component {
+
+  constructor(props) {
+    super(props);
+    let now = new Date();
+    this.state = {time: now.getTime()};
+  }
+
+  componentDidMount() {
+
+    let msPerDay = 86400000;
+    let d = new Date();
+    let now = d.getTime();
+    let yesterday = now - 1 * msPerDay;
+
+    let data = tanker.getLevels(yesterday, now);
+    data.then((levels) => {
+      console.log(levels);
+      let levelsArr = Array.from(levels.Items);
+      let graphData = {
+        name: "tanker",
+        columns: ["time", "level"],
+        points: []
+      };
+      console.log(levelsArr);
+      levelsArr.forEach((p) => {
+        let point = [p.timestamp, p.level];
+        graphData.points.push(point);
+      });
+      console.log(graphData);
+      const timeSeries = new TimeSeries(graphData);
+      console.log(timeSeries.count());
+      const timeRange = timeSeries.timerange();
+      this.setState({
+        timeSeries: timeSeries,
+        timeRange: timeRange
+      });
+    });
+  }
+
+  handleTrackerChanged = (t) => {
+    if (t && this.state.timeSeries) {
+      console.log(t);
+      const event = this.state.timeSeries.atTime(t);
+      const eventLevel = event.get("level");
+      let d = new Date();
+      let currTime = d.getTime();
+      this.setState({
+        tracker: event.begin().getTime(),
+        trackerValue: eventLevel,
+        trackerEvent: event,
+        time: currTime
+      });
+    } else {
+      this.setState({tracker: null, trackerValue: null, trackerEvent: null})
+    }
+  };
+
   render() {
 
     return (
-        <div>
-        {this.props.children}
-  </div>
-  );
+        <div className="App">
+          <div className="App-intro">
+            <p>
+              Tank data for {this.state.timeRange
+                ? this.state.timeRange.begin().toString() : "unknown"}
+              {" to "}
+              {this.state.timeRange
+                  ? this.state.timeRange.end().toString() : "unknown"}.
+            </p>
+            <p>
+              Reading  {new Date(this.state.tracker).toString()}, value {this.state.trackerValue}
+            </p>
+          </div>
+          <div>
+            {
+              this.state.timeRange
+                  ? <Resizable>
+                    <ChartContainer
+                        timeRange={this.state.timeRange}
+                        onTrackerChanged={this.handleTrackerChanged}
+                    >
+                      <ChartRow height="150">
+                        <YAxis
+                            id="levelAxis"
+                            min={0.0}
+                            max={this.state.timeSeries.max("level")}/>
+                        <Charts>
+                          <LineChart
+                              axis="levelAxis"
+                              series={this.state.timeSeries}
+                              columns={["level"]}
+                          />
+                          <EventMarker>
+                            type="flag"
+                            axis="levelAxis"
+                            event={this.state.trackerEvent}
+                            column="level"
+                            info="test info"
+                            infowidth={100}
+                            markerRadius={2}
+                            markerStyle={{ fill: "black" }}
+                          </EventMarker>
+                        </Charts>
+                      </ChartRow>
+                    </ChartContainer>
+                  </Resizable>
+                  : <div>
+                    No data
+                  </div>
+            }
+          </div>
+        </div>
+    );
   }
 }
 
-let msPerDay = 86400000;
-let d =  new Date();
-let now = d.getTime();
-let yesterday = now - msPerDay;
-
-let data = tanker.getLevels(yesterday, now);
-data.then((levels) => {
-    let arr = Array.from(levels.Items);
-    RenderApp(arr);
-});
-
-function RenderApp(points) {
-
-  let data = {};
-  data.name = "tanker";
-  data.columns = ["time", "level"];
-  data.points=[];
-  points.forEach((p) => {
-    let point = [p.timestamp, p.level];
-    data.points.push(point);
-  });
-//  data.points = points.map((p) => {
-//    return [p.timestamp, p.level];
-//  });
-
-
-  console.log(data);
-  console.log(data.points);
-
-  let mySeries = new TimeSeries(data);
-  console.log(mySeries);
-  console.log(mySeries.toJSON());
-
-  console.log(mySeries.at(0).get("level"));
-  let tr = mySeries.timerange();
-  let self={};
-  self.series = mySeries;
-
-  render(
-      <Resizable>
-      <ChartContainer timeRange={tr} height={500}>
-        <ChartRow>
-          <YAxis id="level" min={0} max={10000}/>
-          <Charts>
-            <LineChart axis="level"  series={mySeries}/>
-          </Charts>
-        </ChartRow>
-      </ChartContainer>
-      </Resizable>,
-
-  document.getElementById('root')
-  )
-}
+export default App;
