@@ -83,8 +83,10 @@ class App extends Component {
                   ? this.state.timeRange.end().toString() : "unknown"}.
             </p>
             <p>
-              {this.state.tracker ? new Date(this.state.tracker).toString() : " "}
-              {this.state.tracker ? this.state.trackerValue : " "}
+              {this.state.tracker ? new Date(this.state.tracker).toString()
+                  : ""}
+              &nbsp;
+              {this.state.tracker ? this.state.trackerValue : ""}
             </p>
           </div>
           <div>
