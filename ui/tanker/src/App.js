@@ -83,7 +83,8 @@ class App extends Component {
                   ? this.state.timeRange.end().toString() : "unknown"}.
             </p>
             <p>
-              Reading  {new Date(this.state.tracker).toString()}, value {this.state.trackerValue}
+              {this.state.tracker ? new Date(this.state.tracker).toString() : " "}
+              {this.state.tracker ? this.state.trackerValue : " "}
             </p>
           </div>
           <div>
@@ -113,7 +114,7 @@ class App extends Component {
                             info="test info"
                             infowidth={100}
                             markerRadius={2}
-                            markerStyle={{ fill: "black" }}
+                            markerStyle={{fill: "black"}}
                           </EventMarker>
                         </Charts>
                       </ChartRow>

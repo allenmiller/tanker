@@ -1,7 +1,8 @@
 {
-  "name": "tank2",
-  "version": "0.1.0",
+  "name": "tank",
+  "version": "0.1.1",
   "private": true,
+  "homepage": "https://s3-us-west-2.amazonaws.com/tanker-ui.ajmiller.net/",
   "dependencies": {
     "pondjs": "^0.8.7",
     "react": "^15.6.1",
