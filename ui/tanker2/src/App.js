@@ -25,7 +25,7 @@ class App extends Component {
     let msPerDay = 86400000;
     let d = new Date();
     let now = d.getTime();
-    let yesterday = now - 5 * msPerDay;
+    let yesterday = now - 1 * msPerDay;
 
     let data = tanker.getLevels(yesterday, now);
     data.then((levels) => {
@@ -68,7 +68,7 @@ class App extends Component {
     } else {
       this.setState({tracker: null, trackerValue: null, trackerEvent: null})
     }
-  }
+  };
 
   render() {
 
@@ -83,7 +83,7 @@ class App extends Component {
                   ? this.state.timeRange.end().toString() : "unknown"}.
             </p>
             <p>
-              Rendered at {this.state.time};
+              Reading  {new Date(this.state.tracker).toString()}, value {this.state.trackerValue}
             </p>
           </div>
           <div>
@@ -111,6 +111,9 @@ class App extends Component {
                             event={this.state.trackerEvent}
                             column="level"
                             info="test info"
+                            infowidth={100}
+                            markerRadius={2}
+                            markerStyle={{ fill: "black" }}
                           </EventMarker>
                         </Charts>
                       </ChartRow>
