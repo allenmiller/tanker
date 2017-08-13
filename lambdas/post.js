@@ -22,8 +22,8 @@ exports.handler = (event, context, callback) => {
   let record = {
     "tank": "secondary",
     "timestamp": body.time,
-    "rawLevel": parseFloat(body.reading_mV),
-    "level": parseFloat(body.distance_cm),
+    "reading_mV": parseFloat(body.reading_mV),
+    "distance_cm": parseFloat(body.distance_cm),
     "sourceIp": event.context.sourceIp
   };
   console.log("writing: ", record);

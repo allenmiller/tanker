@@ -3,6 +3,7 @@ import './App.css';
 import tanker from './services/TankerService';
 import {TimeSeries} from 'pondjs';
 import {
+  Baseline,
   Charts,
   ChartContainer,
   ChartRow,
@@ -25,7 +26,7 @@ class App extends Component {
     let msPerDay = 86400000;
     let d = new Date();
     let now = d.getTime();
-    let yesterday = now - 1 * msPerDay;
+    let yesterday = now - msPerDay;
 
     let data = tanker.getLevels(yesterday, now);
     data.then((levels) => {
@@ -38,7 +39,12 @@ class App extends Component {
       };
       console.log(levelsArr);
       levelsArr.forEach((p) => {
-        let point = [p.timestamp, p.level];
+        let point;
+        if (p.level) {
+          point = [p.timestamp, p.level];
+        } else {
+          point = [p.timestamp, p.distance_cm];
+        }
         graphData.points.push(point);
       });
       console.log(graphData);
@@ -97,16 +103,28 @@ class App extends Component {
                         timeRange={this.state.timeRange}
                         onTrackerChanged={this.handleTrackerChanged}
                     >
-                      <ChartRow height="150">
+                      <ChartRow height="400">
                         <YAxis
                             id="levelAxis"
+                            label="distance from sensor (cm)"
                             min={0.0}
-                            max={this.state.timeSeries.max("level")}/>
+//                            max={this.state.timeSeries.max("level")}/>
+                            max={150}/>
                         <Charts>
                           <LineChart
                               axis="levelAxis"
                               series={this.state.timeSeries}
                               columns={["level"]}
+                          />
+                          <Baseline
+                            axis="levelAxis"
+                            value={20}
+                            label="alert level"
+                          />
+                          <Baseline
+                              axis="levelAxis"
+                              value={100}
+                              label="bottom"
                           />
                           <EventMarker>
                             type="flag"
