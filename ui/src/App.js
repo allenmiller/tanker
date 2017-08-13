@@ -34,7 +34,7 @@ class App extends Component {
       let levelsArr = Array.from(levels.Items);
       let graphData = {
         name: "tanker",
-        columns: ["time", "level"],
+        columns: ["time", "distance"],
         points: []
       };
       console.log(levelsArr);
@@ -62,7 +62,7 @@ class App extends Component {
     if (t && this.state.timeSeries) {
       console.log(t);
       const event = this.state.timeSeries.atTime(t);
-      const eventLevel = event.get("level");
+      const eventLevel = event.get("distance");
       let d = new Date();
       let currTime = d.getTime();
       this.setState({
@@ -105,25 +105,40 @@ class App extends Component {
                     >
                       <ChartRow height="400">
                         <YAxis
-                            id="levelAxis"
+                            id="distanceAxis"
                             label="distance from sensor (cm)"
                             min={0.0}
 //                            max={this.state.timeSeries.max("level")}/>
                             max={150}/>
                         <Charts>
                           <LineChart
-                              axis="levelAxis"
+                              axis="distanceAxis"
                               series={this.state.timeSeries}
-                              columns={["level"]}
+                              columns={["distance"]}
                           />
                           <Baseline
-                            axis="levelAxis"
-                            value={20}
-                            label="alert level"
+                              axis="distanceAxis"
+                              value={0}
+                              label="sensor"
                           />
                           <Baseline
-                              axis="levelAxis"
-                              value={100}
+                              axis="distanceAxis"
+                              value={34}
+                              label="alarm"
+                          />
+                          <Baseline
+                              axis="distanceAxis"
+                              value={50}
+                              label="alert"
+                          />
+                          <Baseline
+                              axis="distanceAxis"
+                              value={83}
+                              label="normal low"
+                          />
+                          <Baseline
+                              axis="distanceAxis"
+                              value={146}
                               label="bottom"
                           />
                           <EventMarker>
@@ -138,7 +153,7 @@ class App extends Component {
                           </EventMarker>
                         </Charts>
                         <YAxis
-                            id="levelAxis"
+                            id="distanceAxis"
                             label="distance from sensor (cm)"
                             min={0.0}
                             //                            max={this.state.timeSeries.max("level")}/>
