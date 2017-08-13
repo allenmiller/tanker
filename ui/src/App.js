@@ -43,7 +43,7 @@ class App extends Component {
         if (p.level) {
           point = [p.timestamp, p.level];
         } else {
-          point = [p.timestamp, p.distance_cm];
+          point = [p.timestamp, -p.distance_cm];
         }
         graphData.points.push(point);
       });
@@ -155,9 +155,9 @@ class App extends Component {
                         <YAxis
                             id="distanceAxis"
                             label="distance from sensor (cm)"
-                            min={0.0}
+                            min={-150}
                             //                            max={this.state.timeSeries.max("level")}/>
-                            max={150}/>
+                            max={0}/>
                       </ChartRow>
                     </ChartContainer>
                   </Resizable>
