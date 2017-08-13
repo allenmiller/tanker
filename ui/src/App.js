@@ -30,26 +30,22 @@ class App extends Component {
 
     let data = tanker.getLevels(yesterday, now);
     data.then((levels) => {
-      console.log(levels);
       let levelsArr = Array.from(levels.Items);
       let graphData = {
         name: "tanker",
         columns: ["time", "distance"],
         points: []
       };
-      console.log(levelsArr);
       levelsArr.forEach((p) => {
         let point;
         if (p.level) {
-          point = [p.timestamp, p.level];
+          point = [p.timestamp, -p.level];
         } else {
           point = [p.timestamp, -p.distance_cm];
         }
         graphData.points.push(point);
       });
-      console.log(graphData);
       const timeSeries = new TimeSeries(graphData);
-      console.log(timeSeries.count());
       const timeRange = timeSeries.timerange();
       this.setState({
         timeSeries: timeSeries,
@@ -60,7 +56,6 @@ class App extends Component {
 
   handleTrackerChanged = (t) => {
     if (t && this.state.timeSeries) {
-      console.log(t);
       const event = this.state.timeSeries.atTime(t);
       const eventLevel = event.get("distance");
       let d = new Date();
@@ -83,13 +78,13 @@ class App extends Component {
           <div className="App-intro">
             <p>
               Tank data for {this.state.timeRange
-                ? this.state.timeRange.begin().toString() : "unknown"}
+                ? this.state.timeRange.begin().toLocaleString() : "unknown"}
               {" to "}
               {this.state.timeRange
-                  ? this.state.timeRange.end().toString() : "unknown"}.
+                  ? this.state.timeRange.end().toLocaleString() : "unknown"}.
             </p>
             <p>
-              {this.state.tracker ? new Date(this.state.tracker).toString()
+              {this.state.tracker ? new Date(this.state.tracker).toLocaleString()
                   : ""}
               &nbsp;
               {this.state.tracker ? this.state.trackerValue : ""}
@@ -123,23 +118,28 @@ class App extends Component {
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={34}
+                              value={-6}
+                              label="top of tank"
+                          />
+                          <Baseline
+                              axis="distanceAxis"
+                              value={-34}
                               label="alarm"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={50}
+                              value={-50}
                               label="alert"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={83}
+                              value={-83}
                               label="normal low"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={146}
-                              label="bottom"
+                              value={-146}
+                              label="bottom of tank"
                           />
                           <EventMarker>
                             type="flag"
@@ -157,7 +157,7 @@ class App extends Component {
                             label="distance from sensor (cm)"
                             min={-150}
                             //                            max={this.state.timeSeries.max("level")}/>
-                            max={0}/>
+                            max={10}/>
                       </ChartRow>
                     </ChartContainer>
                   </Resizable>
