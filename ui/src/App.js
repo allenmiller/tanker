@@ -137,6 +137,12 @@ class App extends Component {
                             markerStyle={{fill: "black"}}
                           </EventMarker>
                         </Charts>
+                        <YAxis
+                            id="levelAxis"
+                            label="distance from sensor (cm)"
+                            min={0.0}
+                            //                            max={this.state.timeSeries.max("level")}/>
+                            max={150}/>
                       </ChartRow>
                     </ChartContainer>
                   </Resizable>
