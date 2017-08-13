@@ -1,7 +1,10 @@
 'use strict';
 
+let AWS = require('aws-sdk');
+
 const doc = require('dynamodb-doc');
 const dynamo = new doc.DynamoDB();
+const alertLevel = 50;
 
 exports.handler = (event, context, callback) => {
 
@@ -28,4 +31,19 @@ exports.handler = (event, context, callback) => {
   };
   console.log("writing: ", record);
   dynamo.putItem({TableName: "tank2", Item: record}, done);
+  if (body.distance_cm < alertLevel) {
+    console.log("ALERT: critical tank level!");
+    // Publish to SNS topic
+    var sns = new AWS.SNS();
+    sns.publish({
+          TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
+          Message: "ALERT: Tank level higher than alert limit",
+          Subject: "Tank Level Alert"
+        },
+        function (err, data) {
+          if (err) {
+            console.log("Error sending tank level alert " + err);
+          }
+        });
+  }
 };
