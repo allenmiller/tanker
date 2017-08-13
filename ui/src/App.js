@@ -78,10 +78,10 @@ class App extends Component {
           <div className="App-intro">
             <p>
               Tank data for {this.state.timeRange
-                ? this.state.timeRange.begin().toLocaleString() : "unknown"}
+                ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
               {" to "}
               {this.state.timeRange
-                  ? this.state.timeRange.end().toLocaleString() : "unknown"}.
+                  ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
             </p>
             <p>
               {this.state.tracker ? new Date(this.state.tracker).toLocaleString()
