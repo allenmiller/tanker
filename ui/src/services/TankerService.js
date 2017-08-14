@@ -1,8 +1,7 @@
 export default {
 
   getLevels: function (start, end) {
-    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?"
-    //let url = "https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker?";
+    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
     url += "startTime=" + start;
     url += "&endTime=" + end;
 
