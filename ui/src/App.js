@@ -13,6 +13,14 @@ import {
   Resizable
 } from "react-timeseries-charts";
 
+const topOfTank = 6;
+const alarmDistance = 34;
+const alertDistance = 50;
+const normalLow = 83;
+const bottomOfTank = 146;
+
+const galPerCm = 8.2;
+
 class App extends Component {
 
   constructor(props) {
@@ -38,16 +46,25 @@ class App extends Component {
       };
       levelsArr.forEach((p) => {
         let point;
-        if (p.level) {
-          point = [p.timestamp, -p.level];
-        } else {
-          point = [p.timestamp, -p.distance_cm];
-        }
+        point = [p.timestamp, -p.distance_cm];
         graphData.points.push(point);
       });
+      let lastDistance = graphData.points[graphData.points.length - 1][1];
+      console.log(lastDistance);
+
+      let alarmCapacity = 0;
+      if (Math.abs(lastDistance) > alarmDistance) {
+        alarmCapacity = (Math.abs(lastDistance) - alarmDistance) * galPerCm;
+      }
+      let alertCapacity = 0;
+      if(Math.abs(lastDistance) > alertDistance) {
+        alertCapacity = (Math.abs(lastDistance) - alertDistance) * galPerCm;
+      }
       const timeSeries = new TimeSeries(graphData);
       const timeRange = timeSeries.timerange();
       this.setState({
+        alarmCapacity: Math.round(alarmCapacity),
+        alertCapacity: Math.round(alertCapacity),
         timeSeries: timeSeries,
         timeRange: timeRange
       });
@@ -77,11 +94,15 @@ class App extends Component {
         <div className="App">
           <div className="App-intro">
             <p>
-              Tank data for {this.state.timeRange
+              {this.state.timeRange
                 ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
               {" to "}
               {this.state.timeRange
                   ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
+            </p>
+            <p>
+              {this.state.alertCapacity} gal until alert,&nbsp;
+              {this.state.alarmCapacity} gal until alarm.
             </p>
             <p>
               {this.state.tracker ? new Date(this.state.tracker).toLocaleString()
@@ -118,27 +139,27 @@ class App extends Component {
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-6}
+                              value={-topOfTank}
                               label="top of tank"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-34}
+                              value={-alarmDistance}
                               label="alarm"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-50}
+                              value={-alertDistance}
                               label="alert"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-83}
+                              value={-normalLow}
                               label="normal low"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-146}
+                              value={-bottomOfTank}
                               label="bottom of tank"
                           />
                           <EventMarker>
@@ -155,7 +176,7 @@ class App extends Component {
                         <YAxis
                             id="distanceAxis"
                             label="distance from sensor (cm)"
-                            min={-150}
+                            min={-bottomOfTank}
                             //                            max={this.state.timeSeries.max("level")}/>
                             max={10}/>
                       </ChartRow>
