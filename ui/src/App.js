@@ -16,6 +16,7 @@ import {
 const topOfTank = 6;
 const alarmDistance = 34;
 const alertDistance = 50;
+const normalHigh = 65;
 const normalLow = 83;
 const bottomOfTank = 146;
 
@@ -151,6 +152,11 @@ class App extends Component {
                               axis="distanceAxis"
                               value={-alertDistance}
                               label="alert"
+                          />
+                          <Baseline
+                              axis="distanceAxis"
+                              value={-normalHigh}
+                              label="normal high"
                           />
                           <Baseline
                               axis="distanceAxis"
