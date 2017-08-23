@@ -13,12 +13,14 @@ import {
   Resizable
 } from "react-timeseries-charts";
 
-const topOfTank = 6;
-const alarmDistance = 34;
-const alertDistance = 50;
-const normalHigh = 65;
-const normalLow = 83;
-const bottomOfTank = 146;
+// Define tank levels in cm below ground level
+
+const topOfTank = 62;
+const alarmDistance = 90;
+const alertDistance = 106;
+const normalHigh = 121;
+const normalLow = 139;
+const bottomOfTank = 202;
 
 const galPerCm = 8.2;
 
