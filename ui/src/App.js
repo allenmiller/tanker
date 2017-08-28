@@ -171,16 +171,16 @@ class App extends Component {
                               value={-bottomOfTank}
                               label="bottom of tank"
                           />
-                          <EventMarker>
+                          <EventMarker
                             type="flag"
-                            axis="levelAxis"
+                            axis="distanceAxis"
                             event={this.state.trackerEvent}
-                            column="level"
-                            info="test info"
+                            column="distance"
+                            info={this.state.trackerValue? this.state.trackerValue.toString(): ""}
                             infowidth={100}
                             markerRadius={2}
                             markerStyle={{fill: "black"}}
-                          </EventMarker>
+                          />
                         </Charts>
                         <YAxis
                             id="distanceAxis"
