@@ -3,13 +3,14 @@ Backend web server and database manager for Tanker
 
 Measurements:
 
-Relative to   ground         sensor
-ground level    0              -56
-sensor         56                0
-top of tank    62                6
-alarm level    90               34
-lower limit    137              81
-bottom of tank 202             146
+Relative to ground
+
+top of tank     62
+alarm level     90
+alert level    106
+normal high    121
+lower limit    137
+bottom of tank 202
 
 Pump Tank characteristics
 

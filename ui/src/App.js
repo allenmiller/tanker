@@ -15,6 +15,7 @@ import {
 
 // Define tank levels in cm below ground level
 
+const groundLevel = 0;
 const topOfTank = 62;
 const alarmDistance = 90;
 const alertDistance = 106;
@@ -23,6 +24,7 @@ const normalLow = 139;
 const bottomOfTank = 202;
 
 const galPerCm = 8.2;
+const msPerDay = 86400000;
 
 class App extends Component {
 
@@ -34,7 +36,6 @@ class App extends Component {
 
   componentDidMount() {
 
-    let msPerDay = 86400000;
     let d = new Date();
     let now = d.getTime();
     let yesterday = now - msPerDay;
@@ -125,10 +126,10 @@ class App extends Component {
                       <ChartRow height="400">
                         <YAxis
                             id="distanceAxis"
-                            label="distance from sensor (cm)"
-                            min={0.0}
-//                            max={this.state.timeSeries.max("level")}/>
-                            max={150}/>
+                            label="distance below ground (cm)"
+                            max={groundLevel+10}
+                            min={-bottomOfTank}
+                        />
                         <Charts>
                           <LineChart
                               axis="distanceAxis"
@@ -138,7 +139,7 @@ class App extends Component {
                           <Baseline
                               axis="distanceAxis"
                               value={0}
-                              label="sensor"
+                              label="ground level"
                           />
                           <Baseline
                               axis="distanceAxis"
@@ -183,10 +184,10 @@ class App extends Component {
                         </Charts>
                         <YAxis
                             id="distanceAxis"
-                            label="distance from sensor (cm)"
+                            label="distance below ground (cm)"
+                            max={groundLevel+10}
                             min={-bottomOfTank}
-                            //                            max={this.state.timeSeries.max("level")}/>
-                            max={10}/>
+                        />
                       </ChartRow>
                     </ChartContainer>
                   </Resizable>

@@ -20,7 +20,7 @@ const dynamo = new doc.DynamoDB();
 
 const TOP_OF_TANK = 62;
 const ALARM_LEVEL = 90;
-const ALERT_LEVEL = 109;
+const ALERT_LEVEL = 106;
 const LOWER_LIMIT = 137;
 const BOTTOM      = 202;
 
@@ -46,16 +46,14 @@ exports.handler = (event, context, callback) => {
   let body = event["body-json"];
   let record = {
     "tank": "secondary",
+    "sensor": body.sensor,
     "timestamp": body.time,
     "distance_cm": parseFloat(body.distance_cm) + body.sensorLevel,
     "sourceIp": event.context.sourceIp
   };
 
-  if (body.sensor) {
-    record.sensor = body.sensor;
-    if (body.sensor === "MAXBOTIX_DC") {
-      record.reading_mV = body.reading_mV;
-    }
+  if (body.sensor === "MAXBOTIX_DC") {
+    record.reading_mV = body.reading_mV;
   }
 
   console.log("writing: ", record);
@@ -63,7 +61,7 @@ exports.handler = (event, context, callback) => {
   if (body.distance_cm < ALERT_LEVEL) {
     console.log("ALERT: critical tank level!");
     // Publish to SNS topic
-    var sns = new AWS.SNS();
+//    let sns = new AWS.SNS();
 //    sns.publish({
 //          TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
 //          Message: "ALERT: Tank level higher than alert limit",
