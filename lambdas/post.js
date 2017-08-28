@@ -15,17 +15,18 @@ let AWS = require('aws-sdk');
 
 const doc = require('dynamodb-doc');
 const dynamo = new doc.DynamoDB();
-const alertLevel = 50;
 
 // tank levels below ground.
 
 const TOP_OF_TANK = 62;
 const ALARM_LEVEL = 90;
+const ALERT_LEVEL = 109;
 const LOWER_LIMIT = 137;
 const BOTTOM      = 202;
 
 
-// TODO: normalize sensor reading distance to represent tank level.
+// TODO: normalize sensor reading distance to represent tank level as measured
+// from the surface.
 
 exports.handler = (event, context, callback) => {
 
@@ -46,7 +47,7 @@ exports.handler = (event, context, callback) => {
   let record = {
     "tank": "secondary",
     "timestamp": body.time,
-    "distance_cm": parseFloat(body.distance_cm),
+    "distance_cm": parseFloat(body.distance_cm) + body.sensorLevel,
     "sourceIp": event.context.sourceIp
   };
 
@@ -59,7 +60,7 @@ exports.handler = (event, context, callback) => {
 
   console.log("writing: ", record);
   dynamo.putItem({TableName: "tank2", Item: record}, done);
-  if (body.distance_cm < alertLevel) {
+  if (body.distance_cm < ALERT_LEVEL) {
     console.log("ALERT: critical tank level!");
     // Publish to SNS topic
     var sns = new AWS.SNS();
@@ -74,5 +75,4 @@ exports.handler = (event, context, callback) => {
 //          }
 //        });
   }
-}
-;
+};
