@@ -17,11 +17,12 @@ import {
 
 const groundLevel = 0;
 const topOfTank = 62;
-const alarmDistance = 90;
-const alertDistance = 106;
+const alarmLevel = 90;
+const alertLevel = 106;
 const normalHigh = 121;
 const normalLow = 139;
-const bottomOfTank = 202;
+//const bottomOfTank = 202;
+const bottomOfTank = 510;
 
 const galPerCm = 8.2;
 const msPerDay = 86400000;
@@ -57,12 +58,12 @@ class App extends Component {
       console.log(lastDistance);
 
       let alarmCapacity = 0;
-      if (Math.abs(lastDistance) > alarmDistance) {
-        alarmCapacity = (Math.abs(lastDistance) - alarmDistance) * galPerCm;
+      if (Math.abs(lastDistance) > alarmLevel) {
+        alarmCapacity = (Math.abs(lastDistance) - alarmLevel) * galPerCm;
       }
       let alertCapacity = 0;
-      if(Math.abs(lastDistance) > alertDistance) {
-        alertCapacity = (Math.abs(lastDistance) - alertDistance) * galPerCm;
+      if(Math.abs(lastDistance) > alertLevel) {
+        alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
       }
       const timeSeries = new TimeSeries(graphData);
       const timeRange = timeSeries.timerange();
@@ -75,14 +76,34 @@ class App extends Component {
     });
   }
 
+  calculateTrackerColor = (eventLevel) => {
+    eventLevel = Math.abs(eventLevel);
+    if (eventLevel > normalLow) {
+      return "yellow";
+    }
+    if (eventLevel <= normalLow && eventLevel > alertLevel) {
+      return "green";
+    }
+    if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
+      return "yellow";
+    }
+    if (eventLevel <= alarmLevel) {
+      return "red";
+    }
+  };
+
   handleTrackerChanged = (t) => {
     if (t && this.state.timeSeries) {
       const event = this.state.timeSeries.atTime(t);
       const eventLevel = event.get("distance");
       let d = new Date();
       let currTime = d.getTime();
+
+      let trackerColor = this.calculateTrackerColor(eventLevel);
+
       this.setState({
         tracker: event.begin().getTime(),
+        trackerColor: trackerColor,
         trackerValue: eventLevel,
         trackerEvent: event,
         time: currTime
@@ -107,12 +128,6 @@ class App extends Component {
             <p>
               {this.state.alertCapacity} gal until alert,&nbsp;
               {this.state.alarmCapacity} gal until alarm.
-            </p>
-            <p>
-              {this.state.tracker ? new Date(this.state.tracker).toLocaleString()
-                  : ""}
-              &nbsp;
-              {this.state.tracker ? this.state.trackerValue : ""}
             </p>
           </div>
           <div>
@@ -148,12 +163,12 @@ class App extends Component {
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-alarmDistance}
+                              value={-alarmLevel}
                               label="alarm"
                           />
                           <Baseline
                               axis="distanceAxis"
-                              value={-alertDistance}
+                              value={-alertLevel}
                               label="alert"
                           />
                           <Baseline
@@ -177,8 +192,8 @@ class App extends Component {
                             event={this.state.trackerEvent}
                             column="distance"
                             info={this.state.trackerValue? this.state.trackerValue.toString(): ""}
-                            infowidth={100}
-                            markerRadius={2}
+                            infoStyle = {{fill: this.state.trackerColor, opacity: 0.95, stroke: "#666", pointerEvents: "none" }}
+                            markerRadius={4}
                             markerStyle={{fill: "black"}}
                           />
                         </Charts>
