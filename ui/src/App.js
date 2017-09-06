@@ -90,6 +90,7 @@ class App extends Component {
     if (eventLevel <= alarmLevel) {
       return "red";
     }
+    return "white";
   };
 
   handleTrackerChanged = (t) => {
@@ -187,14 +188,15 @@ class App extends Component {
                               label="bottom of tank"
                           />
                           <EventMarker
+                            style={{stroke: "black"}}
                             type="flag"
                             axis="distanceAxis"
                             event={this.state.trackerEvent}
                             column="distance"
                             info={this.state.trackerValue? this.state.trackerValue.toString(): ""}
-                            infoStyle = {{fill: this.state.trackerColor, opacity: 0.95, stroke: "#666", pointerEvents: "none" }}
+                            infoStyle = {{fill: this.state.trackerColor, opacity: 0.5, stroke: "#000", strokeWidth: 1,  pointerEvents: "none" }}
                             markerRadius={4}
-                            markerStyle={{fill: "black"}}
+                           // markerStyle={{fill: "black"}}
                           />
                         </Charts>
                         <YAxis
