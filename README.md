@@ -1,12 +1,46 @@
-Set up Raspberry Pi
+#Set up Raspberry Pi
 
-* Install Raspbian
+## Install Raspbian
+  https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-without-ethernet
   https://www.raspberrypi.org/forums/viewtopic.php?t=74176
+  
+https://davidmaitland.me/2015/12/raspberry-pi-zero-headless-setup/
 
   Download latest
-  unzip
+  unzip 2017-08-16-raspbian-stretch.zip
+  Load microSD card into USB adapter and plug into the mac
+
+  Unmount the microSD volume
+  sudo diskutil unmount /dev/disk2s1
+  sudo dd bs=1m if=2017-08-16-raspbian-stretch.img of=/dev/rdisk2
+4680+1 records in
+4680+1 records out
+4907675648 bytes transferred in 407.905175 secs (12031413 bytes/sec)
   
-* Connect to network
+
+  cd /Volumes/boot
+
+  create file wpa_supplicant.conf containing:
+
+  ````
+  network={
+    ssid="MYSSID"
+    psk="MYPASSWD"
+    key_mgmt=WPA-PSK
+  }
+  ````
+
+Read the notes at the end of:
+https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-without-ethernet
+
+  enable ssh:
+
+  touch ssh
+  cd
+  sudo diskutil unmount /dev/disk2s1
+
+  remove microSD card from mac, insert in Raspberry Pi, power up.
+
 
 
 =
