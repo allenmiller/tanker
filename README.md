@@ -23,6 +23,7 @@ https://davidmaitland.me/2015/12/raspberry-pi-zero-headless-setup/
   create file wpa_supplicant.conf containing:
 
   ````
+  ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
   network={
     ssid="MYSSID"
     psk="MYPASSWD"
@@ -40,12 +41,64 @@ https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-withou
   sudo diskutil unmount /dev/disk2s1
 
   remove microSD card from mac, insert in Raspberry Pi, power up.
+````
+  sudo nmap -sP 10.0.0.0/24
+  
+  Starting Nmap 7.40 ( https://nmap.org ) at 2017-09-07 20:42 PDT
+  Nmap scan report for 10.0.0.1
+  Host is up (0.014s latency).
+  MAC Address: CC:03:FA:7A:5B:23 (Technicolor CH USA)
+...
+  Nmap scan report for 10.0.0.8
+  Host is up (0.015s latency).
+  MAC Address: B8:27:EB:39:F7:33 (Raspberry Pi Foundation)
+...
+  Nmap done: 256 IP addresses (10 hosts up) scanned in 5.29 seconds
+  
 
+````
+Give it a hostname and change the default password:
+````
+  sudo hostname tortoise
+  sudo vi /etc/hosts
+   < add hostname (tortoise in this case) to the first line, after localhost >
+  passwd
+````
+Install your public key
 
+````
+  mkdir .ssh
+  chmod 755 .ssh
+  cd .ssh
+  nano authorized_keys
+    <copy your public key>
+  chmod 644 authorized_keys
+  
+````
 
-=
+Update OS to latest versions
 
+````
+  sudo apt-get update
+  sudo apt-get upgrade
+````
 
+Update node.js
+````
+https://stackoverflow.com/questions/42741243/how-do-you-install-newest-version-of-node-js-on-raspberry-pi
+sudo apt-get remove nodered
+sudo apt-get remove nodejs nodejs-legacy
+sudo apt-get autoremove
+
+curl -L https://git.io/n-install | bash
+
+pi@tortoise:~ $ . /home/pi/.bashrc
+pi@tortoise:~ $ node -v
+v8.4.0
+pi@tortoise:~ $ npm --version
+5.3.0
+ 
+````
 Backend web server and database manager for Tanker
 
 ````
