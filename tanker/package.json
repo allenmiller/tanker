@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "i2c-bus": "^1.2.2",
+    "johnny-five": "^0.11.6",
     "node-ads1x15": "^1.0.0",
     "pondjs": "^0.8.7",
     "python-shell": "^0.4.0",
+    "raspi-io": "^8.0.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-scripts": "1.0.10",
