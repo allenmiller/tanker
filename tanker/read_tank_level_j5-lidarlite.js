@@ -4,7 +4,8 @@ let board = new five.Board({io: new Raspi()});
 
 board.on("ready", function() {
     var proximity = new five.Proximity({
-	controller: "LIDARLITE"
+	controller: "LIDARLITE",
+	freq: 10000
     });
 
     proximity.on("data", function() {
