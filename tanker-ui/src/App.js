@@ -21,8 +21,8 @@ const alarmLevel = 90;
 const alertLevel = 106;
 const normalHigh = 121;
 const normalLow = 139;
-//const bottomOfTank = 202;
-const bottomOfTank = 510;
+const bottomOfGraph = 150;
+const bottomOfTank = 202;
 
 const galPerCm = 8.2;
 const msPerDay = 86400000;
@@ -82,7 +82,7 @@ class App extends Component {
       return "yellow";
     }
     if (eventLevel <= normalLow && eventLevel > alertLevel) {
-      return "green";
+      return "white";
     }
     if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
       return "yellow";
@@ -144,7 +144,7 @@ class App extends Component {
                             id="distanceAxis"
                             label="distance below ground (cm)"
                             max={groundLevel+10}
-                            min={-bottomOfTank}
+                            min={-bottomOfGraph}
                         />
                         <Charts>
                           <LineChart
@@ -203,7 +203,7 @@ class App extends Component {
                             id="distanceAxis"
                             label="distance below ground (cm)"
                             max={groundLevel+10}
-                            min={-bottomOfTank}
+                            min={-bottomOfGraph}
                         />
                       </ChartRow>
                     </ChartContainer>
