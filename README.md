@@ -127,11 +127,11 @@ Volume consumed at alarm level: 918 gal
 Lidar detector calibration
 
 Distance measured from bottom of enclosure in which lIDAR is mounted
-
+````
 Measured          Reported
 54                  37 +/- 2
 84                  64
 112                 93
 202                187
 248                238
-
+````
