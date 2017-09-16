@@ -123,3 +123,15 @@ Cap/Height  21 gal/in 8.2 gal/cm  31.1 l/cm
 Volume consumed at lower limit: 533 gal
 Volume consumed at alarm level: 918 gal
 ````
+
+Lidar detector calibration
+
+Distance measured from bottom of enclosure in which lIDAR is mounted
+````
+Measured          Reported
+54                  37 +/- 2
+84                  64
+112                 93
+202                187
+248                238
+````
