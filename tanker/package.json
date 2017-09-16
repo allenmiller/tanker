@@ -12,7 +12,8 @@
     "react-dom": "^15.6.1",
     "react-scripts": "1.0.10",
     "react-timeseries-charts": "^0.12.8",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "rpi-gpio": "^0.8.1"
   },
   "scripts": {
     "start": "react-scripts start",
