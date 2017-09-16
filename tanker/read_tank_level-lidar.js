@@ -6,7 +6,7 @@ let request = require('request');
 const date = new Date();
 const postUrl = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
 const sensor = 'LL-905-PIN-01';
-const SENSOR_LEVEL = 50;  // cm below ground level
+const SENSOR_LEVEL = 40;  // cm below ground level
 
 function post_result(record) {
 
