@@ -1,9 +1,28 @@
-import Utils from './utils';
+const request = require('request');
 const {exec} = require('child_process');
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+post_result = (record) => {
+
+  const postUrl = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
+  console.log("Posting ", record);
+  request.post({
+    url: postUrl,
+    json: true,
+    body: record
+  }, function (error, response, body) {
+    if (error) {
+      console.log("ERROR");
+      console.log(response);
+      console.log(body);
+      throw error;
+    }
+
+  });
+};
 
 async function readPin() {
   let priorState = -1;  // valid values are 0 and 1
@@ -39,7 +58,7 @@ async function readPin() {
       record.tank = "SEPTIC-PUMP";
       record.state = 1;
       record.time = date.getTime();
-      Utils.post_result(record);
+      post_result(record);
 
     } else {
       console.log("The pump is OFF");
