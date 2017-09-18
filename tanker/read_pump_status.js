@@ -1,3 +1,4 @@
+import Utils from './utils';
 const {exec} = require('child_process');
 
 function sleep(ms) {
@@ -6,7 +7,6 @@ function sleep(ms) {
 
 async function readPin() {
   let priorState = -1;  // valid values are 0 and 1
-  console.log("in readPin()");
 
   while (true) {
     let date = new Date();
@@ -16,13 +16,12 @@ async function readPin() {
         console.log(err);
         console.log(stderr);
         // node couldn't execute the command
-        return;
       }
 
       let value = parseInt(stdout);
       console.log(value);
       if (priorState === -1) {
-        console.log("priorState was undefined");
+        // initialize priorState on startup
         priorState = value;
       }
 
@@ -32,13 +31,20 @@ async function readPin() {
       }
 
     });
-    if (priorState) {
-      console.log("The pump is ON");
+
+    if (value) {
       console.log("POST pump on at ", date.getTime())
+      let record = {};
+      record.type = "PUMP_STATE";
+      record.tank = "SEPTIC-PUMP";
+      record.state = 1;
+      record.time = date.getTime();
+      Utils.post_result(record);
+
     } else {
       console.log("The pump is OFF");
     }
-    await sleep(2000);
+    await sleep(5000);
   }
 
 }

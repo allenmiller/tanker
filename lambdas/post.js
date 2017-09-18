@@ -30,47 +30,60 @@ const BOTTOM = 202;
 
 exports.handler = (event, context, callback) => {
 
-    console.log('AJM: Received event:', JSON.stringify(event, null, 2));
-    console.log('context:', JSON.stringify(context, null, 2));
-    const done = (err, res) => {
-        console.log("AJM: in done()", err, res);
-        callback(null, {
-            statusCode: err ? '400' : '200',
-            body: err ? err.message : JSON.stringify(res),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-    };
+  console.log('AJM: Received event:', JSON.stringify(event, null, 2));
+  console.log('context:', JSON.stringify(context, null, 2));
+  const done = (err, res) => {
+    console.log("AJM: in done()", err, res);
+    callback(null, {
+      statusCode: err ? '400' : '200',
+      body: err ? err.message : JSON.stringify(res),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  };
 
-    let body = event["body-json"];
-    let record = {
+  let body = event["body-json"];
+  let record = {};
+
+  switch (body.type) {
+
+    case 'PUMP_STATE':
+      record = {
+        "tank": body.tank,
+        "timestamp": body.time,
+        "pumpState": body.state
+      };
+      break;
+    default:
+      record = {
         "tank": "secondary",
         "sensor": body.sensor,
         "timestamp": body.time,
         "distance_cm": parseFloat(body.distance_cm) + body.sensorLevel,
         "sourceIp": event.context.sourceIp
-    };
+      };
 
-    if (body.sensor === "MAXBOTIX_DC") {
+      if (body.sensor === "MAXBOTIX_DC") {
         record.reading_mV = body.reading_mV;
-    }
+      }
+  }
 
-    console.log("writing: ", record);
-    dynamo.putItem({TableName: "tank2", Item: record}, done);
-    if (record.distance_cm < ALERT_LEVEL) {
-        console.log("ALERT: critical tank level!");
-        // Publish to SNS topic
-        let sns = new AWS.SNS();
-        sns.publish({
-                TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
-                Message: "ALERT: Tank level higher than alert limit",
-                Subject: "Tank Level Alert"
-            },
-            function (err, data) {
-                if (err) {
-                    console.log("Error sending tank level alert " + err);
-                }
-            });
-    }
+  console.log("writing: ", record);
+  dynamo.putItem({TableName: "tank2", Item: record}, done);
+  if (record.distance_cm < ALERT_LEVEL) {
+    console.log("ALERT: critical tank level!");
+    // Publish to SNS topic
+    let sns = new AWS.SNS();
+    sns.publish({
+        TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
+        Message: "ALERT: Tank level higher than alert limit",
+        Subject: "Tank Level Alert"
+      },
+      function (err, data) {
+        if (err) {
+          console.log("Error sending tank level alert " + err);
+        }
+      });
+  }
 };
