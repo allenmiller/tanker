@@ -101,6 +101,9 @@ pi@tortoise:~ $ npm --version
 ````
 
 
+Install tanker
+
+npm install tanker
 
 
 Backend web server and database manager for Tanker
