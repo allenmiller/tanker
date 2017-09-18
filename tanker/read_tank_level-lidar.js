@@ -1,4 +1,6 @@
-let PythonShell = require('python-shell');
+const PythonShell = require('python-shell');
+const request = require('request');
+
 let pyshell = new PythonShell('test.py',
   {scriptPath: '/home/pi/git/github.com/Sanderi44/Lidar-Lite/python/'});
 
