@@ -26,6 +26,7 @@ post_result = (record) => {
 
 async function readPin() {
   let priorState = -1;  // valid values are 0 and 1
+  let value;
 
   while (true) {
     let date = new Date();
@@ -37,7 +38,7 @@ async function readPin() {
         // node couldn't execute the command
       }
 
-      let value = parseInt(stdout);
+      value = parseInt(stdout);
       console.log(value);
       if (priorState === -1) {
         // initialize priorState on startup
