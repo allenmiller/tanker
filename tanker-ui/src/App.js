@@ -266,7 +266,7 @@ class App extends Component {
                         min={-bottomOfGraph}
                       />
                     </ChartRow>
-                    <ChartRow height="25">
+                    <ChartRow height="20">
                       <YAxis
                         id="pumpStateAxis"
                         max={1}
