@@ -71,6 +71,12 @@ exports.handler = (event, context, callback) => {
 
   console.log("writing: ", record);
   dynamo.putItem({TableName: "tank2", Item: record}, done);
+  let ipRecord = {
+    "tank": "latestIp",
+    "ipAddress": event.context.sourceIp
+  };
+  dynamo.putItem({TableName: "tank2", Item: ipRecord});
+
   if (record.distance_cm < ALERT_LEVEL) {
     console.log("ALERT: critical tank level!");
     // Publish to SNS topic
