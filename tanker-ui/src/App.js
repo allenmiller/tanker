@@ -10,7 +10,8 @@ import {
   EventMarker,
   YAxis,
   LineChart,
-  Resizable
+  Resizable,
+  ScatterChart
 } from "react-timeseries-charts";
 
 // Define tank levels in cm below ground level
@@ -47,6 +48,7 @@ class App extends Component {
     let loadDataTimeRange = new TimeRange(lastWeek, now);
     let displayTimeRange = new TimeRange(yesterday, now);
     this.loadData(loadDataTimeRange);
+    this.loadPumpStateData(loadDataTimeRange);
     this.setDisplayTimeRange(displayTimeRange);
   }
 
@@ -77,176 +79,218 @@ class App extends Component {
       if (Math.abs(lastDistance) > alertLevel) {
         alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
       }
-      const timeSeries = new TimeSeries(graphData);
+      const levelTimeSeries = new TimeSeries(graphData);
       this.setState({
         alarmCapacity: Math.round(alarmCapacity),
         alertCapacity: Math.round(alertCapacity),
-        timeSeries: timeSeries,
+        levelTimeSeries: levelTimeSeries,
       });
     });
   };
 
-  setDisplayTimeRange = (timeRange) => {
+  loadPumpStateData = (timeRange) => {
+    let data = tanker.getPumpState(
+      timeRange.begin().getTime(),
+      timeRange.end().getTime()
+    );
+    if (!data) {
+      return;  // TODO: what is the right thing here?
+    }
+    data.then((pumpStates) => {
+      let stateArr = Array.from(pumpStates.Items);
+      let graphData = {
+        name: "pumpState",
+        columns: ["time", "pumpState"],
+        points: []
+      };
+      stateArr.forEach((p) => {
+        let point = [p.timestamp, p.pumpState];
+        graphData.points.push(point);
+      });
+      const pumpStateTimeSeries = new TimeSeries(graphData);
+      this.setState({
+        pumpStateTimeSeries: pumpStateTimeSeries
+      });
+    });
+  };
+
+    setDisplayTimeRange = (timeRange) => {
 
       this.setState({
         timeRange: timeRange
       });
-  };
+    };
 
-  calculateTrackerColor = (eventLevel) => {
-    eventLevel = Math.abs(eventLevel);
-    if (eventLevel > normalLow) {
-      return "yellow";
-    }
-    if (eventLevel <= normalLow && eventLevel > alertLevel) {
+    calculateTrackerColor = (eventLevel) => {
+      eventLevel = Math.abs(eventLevel);
+      if (eventLevel > normalLow) {
+        return "yellow";
+      }
+      if (eventLevel <= normalLow && eventLevel > alertLevel) {
+        return "white";
+      }
+      if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
+        return "yellow";
+      }
+      if (eventLevel <= alarmLevel) {
+        return "red";
+      }
       return "white";
-    }
-    if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
-      return "yellow";
-    }
-    if (eventLevel <= alarmLevel) {
-      return "red";
-    }
-    return "white";
-  };
+    };
 
-  handleTrackerChanged = (t) => {
-    if (t && this.state.timeSeries) {
-      const event = this.state.timeSeries.atTime(t);
-      const eventLevel = event.get("distance");
-      let d = new Date();
-      let currTime = d.getTime();
+    handleTrackerChanged = (t) => {
+      if (t && this.state.levelTimeSeries) {
+        const event = this.state.levelTimeSeries.atTime(t);
+        const eventLevel = event.get("distance");
+        let d = new Date();
+        let currTime = d.getTime();
 
-      let trackerColor = this.calculateTrackerColor(eventLevel);
+        let trackerColor = this.calculateTrackerColor(eventLevel);
 
-      this.setState({
-        tracker: event.begin().getTime(),
-        trackerColor: trackerColor,
-        trackerValue: eventLevel,
-        trackerEvent: event,
-        time: currTime
-      });
-    } else {
-      this.setState({tracker: null, trackerValue: null, trackerEvent: null})
-    }
-  };
+        this.setState({
+          tracker: event.begin().getTime(),
+          trackerColor: trackerColor,
+          trackerValue: eventLevel,
+          trackerEvent: event,
+          time: currTime
+        });
+      } else {
+        this.setState({tracker: null, trackerValue: null, trackerEvent: null})
+      }
+    };
 
-  handleTimeRangeChanged = (newTimerange) => {
-    this.setDisplayTimeRange(newTimerange);
-  };
+    handleTimeRangeChanged = (newTimerange) => {
+      this.setDisplayTimeRange(newTimerange);
+    };
 
-  render() {
+    render()
+    {
 
-    return (
-      <div className="App">
-        <div className="App-intro">
-          <p>
-            {this.state.timeRange
-              ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
-            {" to "}
-            {this.state.timeRange
-              ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
-          </p>
-          <p>
-            {this.state.alertCapacity} gal until alert,&nbsp;
-            {this.state.alarmCapacity} gal until alarm.
-          </p>
+      return (
+        <div className="App">
+          <div className="App-intro">
+            <p>
+              {this.state.timeRange
+                ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
+              {" to "}
+              {this.state.timeRange
+                ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
+            </p>
+            <p>
+              {this.state.alertCapacity} gal until alert,&nbsp;
+              {this.state.alarmCapacity} gal until alarm.
+            </p>
+          </div>
+          <div>
+            {
+              this.state.timeRange
+                ? <Resizable>
+                  <ChartContainer
+                    enablePanZoom={true}
+                    minDuration={60000}
+                    maxTime={new Date()}
+                    timeRange={this.state.timeRange}
+                    onTrackerChanged={this.handleTrackerChanged}
+                    onTimeRangeChanged={this.handleTimeRangeChanged}
+                  >
+                    <ChartRow height="400">
+                      <YAxis
+                        id="distanceAxis"
+                        label="distance below ground (cm)"
+                        max={-topOfGraph}
+                        min={-bottomOfGraph}
+                      />
+                      <Charts>
+                        <LineChart
+                          axis="distanceAxis"
+                          series={this.state.levelTimeSeries}
+                          columns={["distance"]}
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={0}
+                          label="ground level"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-topOfTank}
+                          label="top of tank"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-alarmLevel}
+                          label="alarm"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-alertLevel}
+                          label="alert"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-normalHigh}
+                          label="normal high"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-normalLow}
+                          label="normal low"
+                        />
+                        <Baseline
+                          axis="distanceAxis"
+                          value={-bottomOfTank}
+                          label="bottom of tank"
+                        />
+                        <EventMarker
+                          style={{stroke: "black"}}
+                          type="flag"
+                          axis="distanceAxis"
+                          event={this.state.trackerEvent}
+                          column="distance"
+                          info={this.state.trackerValue ? this.state.trackerValue.toString() : ""}
+                          infoStyle={{
+                            fill: this.state.trackerColor,
+                            opacity: 0.5,
+                            stroke: "#000",
+                            strokeWidth: 1,
+                            pointerEvents: "none"
+                          }}
+                          markerRadius={4}
+                          // markerStyle={{fill: "black"}}
+                        />
+                      </Charts>
+                      <YAxis
+                        id="distanceAxis"
+                        label="distance below ground (cm)"
+                        max={-topOfGraph}
+                        min={-bottomOfGraph}
+                      />
+                    </ChartRow>
+                    <ChartRow height="25">
+                      <YAxis
+                        id="pumpStateAxis"
+                        max={1}
+                        min={1}
+                      />
+                      <Charts>
+                        <ScatterChart
+                          axis="pumpStateAxis"
+                          series={this.state.pumpStateTimeSeries}
+                          columns={["pumpState"]}
+                        />
+                      </Charts>
+                    </ChartRow>
+
+                  </ChartContainer>
+                </Resizable>
+                : <div>
+                  No data
+                </div>
+            }
+          </div>
         </div>
-        <div>
-          {
-            this.state.timeRange
-              ? <Resizable>
-                <ChartContainer
-                  enablePanZoom={true}
-                  minDuration={60000}
-                  maxTime={new Date()}
-                  timeRange={this.state.timeRange}
-                  onTrackerChanged={this.handleTrackerChanged}
-                  onTimeRangeChanged={this.handleTimeRangeChanged}
-                >
-                  <ChartRow height="400">
-                    <YAxis
-                      id="distanceAxis"
-                      label="distance below ground (cm)"
-                      max={-topOfGraph}
-                      min={-bottomOfGraph}
-                    />
-                    <Charts>
-                      <LineChart
-                        axis="distanceAxis"
-                        series={this.state.timeSeries}
-                        columns={["distance"]}
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={0}
-                        label="ground level"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-topOfTank}
-                        label="top of tank"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-alarmLevel}
-                        label="alarm"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-alertLevel}
-                        label="alert"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-normalHigh}
-                        label="normal high"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-normalLow}
-                        label="normal low"
-                      />
-                      <Baseline
-                        axis="distanceAxis"
-                        value={-bottomOfTank}
-                        label="bottom of tank"
-                      />
-                      <EventMarker
-                        style={{stroke: "black"}}
-                        type="flag"
-                        axis="distanceAxis"
-                        event={this.state.trackerEvent}
-                        column="distance"
-                        info={this.state.trackerValue ? this.state.trackerValue.toString() : ""}
-                        infoStyle={{
-                          fill: this.state.trackerColor,
-                          opacity: 0.5,
-                          stroke: "#000",
-                          strokeWidth: 1,
-                          pointerEvents: "none"
-                        }}
-                        markerRadius={4}
-                        // markerStyle={{fill: "black"}}
-                      />
-                    </Charts>
-                    <YAxis
-                      id="distanceAxis"
-                      label="distance below ground (cm)"
-                      max={-topOfGraph}
-                      min={-bottomOfGraph}
-                    />
-                  </ChartRow>
-                </ChartContainer>
-              </Resizable>
-              : <div>
-                No data
-              </div>
-          }
-        </div>
-      </div>
-    );
+      );
+    }
   }
-}
 
 export default App;

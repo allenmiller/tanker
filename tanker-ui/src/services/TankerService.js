@@ -1,14 +1,10 @@
 export default {
 
-  getLevels: function (start, end) {
-    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
-    url += "startTime=" + start;
-    url += "&endTime=" + end;
-
+  tankerGet: function(url, requestMethod) {
     return fetch(url, {
-      method: 'GET',
+      method: requestMethod,
     })
-    .then((response) => {
+      .then((response) => {
           if (response.ok) {
             return response.json();
           } else {
@@ -23,6 +19,24 @@ export default {
             }
           }
         }
-    );
+      );
   },
+
+  getLevels: function (start, end) {
+    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
+    url += "startTime=" + start;
+    url += "&endTime=" + end;
+    url += "&dataSet=secondary";
+
+    return this.tankerGet(url, "GET");
+  },
+
+  getPumpState: function (start, end) {
+    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
+    url += "startTime=" + start;
+    url += "&endTime=" + end;
+    url += "&dataSet=SEPTIC-PUMP";
+
+    return this.tankerGet(url, "GET");
+  }
 }
