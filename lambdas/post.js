@@ -73,9 +73,10 @@ exports.handler = (event, context, callback) => {
   dynamo.putItem({TableName: "tank2", Item: record}, done);
   let ipRecord = {
     "tank": "latestIp",
+    "timestamp": 0,
     "ipAddress": event.context.sourceIp
   };
-  dynamo.putItem({TableName: "tank2", Item: ipRecord});
+  dynamo.putItem({TableName: "tank2", Item: ipRecord}, done);
 
   if (record.distance_cm < ALERT_LEVEL) {
     console.log("ALERT: critical tank level!");
