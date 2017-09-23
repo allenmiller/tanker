@@ -6,7 +6,8 @@ let pyshell = new PythonShell('test.py',
 
 const date = new Date();
 const sensor = 'LL-905-PIN-01';
-const SENSOR_LEVEL = 40;  // cm below ground level
+const SENSOR_LEVEL = 33;  // cm below ground level
+const SENSOR_OFFSET = 20;  // constant error in sensor position.
 
 process.argv.forEach(function (val, index, array) {
   console.log(index + ': ' + val);
@@ -40,7 +41,7 @@ pyshell.on('message', (distanceStr) => {
 
   record.sensor = sensor;
   record.sensorLevel = SENSOR_LEVEL;
-  record.distance_cm = distance;
+  record.distance_cm = distance + SENSOR_OFFSET;
   record.time = date.getTime();
 
   post_result(record);
