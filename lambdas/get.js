@@ -16,15 +16,18 @@ exports.handler = (event, context, callback) => {
   let startTime;
   let endTime;
   let latest;
+  let dataSet;
 
   if (event.params) {
     startTime = event.params.querystring.startTime;
     endTime = event.params.querystring.endTime;
     latest = event.params.querystring.latest;
+    dataSet = event.params.querystring.dataSet;
   } else {
     startTime = event.queryStringParameters.startTime;
     endTime = event.queryStringParameters.endTime;
     latest = event.queryStringParameters.latest;
+    dataSet = event.queryStringParameters.dataset;
   }
 
   let d = new Date();
@@ -35,6 +38,13 @@ exports.handler = (event, context, callback) => {
     endTime = now;
   }
 
+  let primaryKey;
+  if (dataSet) {
+    primaryKey = dataSet;
+  } else {
+    primaryKey = "secondary";
+  }
+
   let params = {
     TableName: "tank2",
     KeyConditionExpression: "tank = :tk AND #ts BETWEEN :start and :end",
@@ -42,7 +52,7 @@ exports.handler = (event, context, callback) => {
       "#ts": "timestamp"
     },
     ExpressionAttributeValues: {
-      ":tk": "secondary",
+      ":tk": primaryKey,
       ":start": parseInt(startTime),
       ":end": parseInt(endTime)
     }
