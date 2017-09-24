@@ -100,6 +100,10 @@ pi@tortoise:~ $ npm --version
  
 ````
 
+Configure gpio ports for Pump monitor
+
+gpio mode 24 in # Sand filter pump, physical pin 35
+gpio mode 25 in # Septic tank pump, physical pin 37
 
 Install tanker
 
@@ -133,7 +137,7 @@ Volume consumed at alarm level: 918 gal
 
 Lidar detector calibration
 
-Distance measured from bottom of enclosure in which lIDAR is mounted
+Distance measured from bottom of enclosure in which LIDAR is mounted
 ````
 Measured          Reported
 54                  37 +/- 2
