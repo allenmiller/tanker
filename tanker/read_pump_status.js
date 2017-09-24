@@ -75,7 +75,7 @@ async function readPin(pin) {
       post_result(record);
 
     } else {
-      console.log("The pump is OFF");
+      console.log(`The pump ${TANK} on pin ${PIN} is OFF`);
     }
     await sleep(SLEEP);
   }
