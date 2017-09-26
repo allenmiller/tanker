@@ -77,21 +77,24 @@ class App extends Component {
         graphData.points.push(point);
       });
       let lastDistance = graphData.points[graphData.points.length - 1][1];
-
-      let alarmCapacity = 0;
-      if (Math.abs(lastDistance) > alarmLevel) {
-        alarmCapacity = (Math.abs(lastDistance) - alarmLevel) * galPerCm;
-      }
-      let alertCapacity = 0;
-      if (Math.abs(lastDistance) > alertLevel) {
-        alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
-      }
       const levelTimeSeries = new TimeSeries(graphData);
-      this.setState({
-        alarmCapacity: Math.round(alarmCapacity),
-        alertCapacity: Math.round(alertCapacity),
-        levelTimeSeries: levelTimeSeries,
-      });
+      this.setState({levelTimeSeries: levelTimeSeries});
+      this.calculateCapacities(lastDistance);
+    });
+  };
+
+  calculateCapacities = (lastDistance) => {
+    let alarmCapacity = 0;
+    if (Math.abs(lastDistance) > alarmLevel) {
+      alarmCapacity = (Math.abs(lastDistance) - alarmLevel) * galPerCm;
+    }
+    let alertCapacity = 0;
+    if (Math.abs(lastDistance) > alertLevel) {
+      alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
+    }
+    this.setState({
+      alarmCapacity: Math.round(alarmCapacity),
+      alertCapacity: Math.round(alertCapacity),
     });
   };
 
@@ -169,6 +172,7 @@ class App extends Component {
         trackerEvent: event,
         time: currTime
       });
+      this.calculateCapacities(eventLevel);
     } else {
       this.setState({tracker: null, trackerValue: null, trackerEvent: null})
     }
@@ -188,10 +192,7 @@ class App extends Component {
         <div className="App-intro">
           <p>
             {this.state.timeRange
-              ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
-            {" to "}
-            {this.state.timeRange
-              ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
+              ? this.state.timeRange.humanize() : " waiting... "}
           </p>
           <p>
             {this.state.alertCapacity} gal until alert,&nbsp;
