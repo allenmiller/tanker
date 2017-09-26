@@ -12,6 +12,7 @@ import {
   LineChart,
   Resizable,
   ScatterChart,
+  ValueList,
   styler
 } from "react-timeseries-charts";
 
@@ -40,10 +41,6 @@ class App extends Component {
     let now = new Date();
     this.state = {
       time: now.getTime(),
-      pumpStateTimeSeries: new TimeSeries(),
-      levelTimeSeries: new TimeSeries(),
-      septicPumpStateTimeSeries: new TimeSeries(),
-      sandFilterPumpStateTimeSeries: new TimeSeries()
     };
   }
 
@@ -127,7 +124,7 @@ class App extends Component {
           this.setState({sandFilterPumpStateTimeSeries: ts});
           break;
         default:
-          console.log("Invalid pump name " + pumpName );
+          console.log("Invalid pump name " + pumpName);
       }
     });
   };
@@ -221,11 +218,12 @@ class App extends Component {
                       min={-bottomOfGraph}
                     />
                     <Charts>
-                      <LineChart
-                        axis="distanceAxis"
-                        series={this.state.levelTimeSeries}
-                        columns={["distance"]}
-                      />
+                      {this.state.levelTimeSeries ?
+                        (<LineChart
+                          axis="distanceAxis"
+                          series={this.state.levelTimeSeries}
+                          columns={["distance"]}
+                        />) : (<ValueList values={[]}></ValueList>)}
                       <Baseline
                         axis="distanceAxis"
                         value={0}
@@ -294,11 +292,13 @@ class App extends Component {
                     />
 
                     <Charts>
-                      <ScatterChart
-                        axis="pumpStateAxis"
-                        series={this.state.septicPumpStateTimeSeries}
-                        columns={["pumpState"]}
-                      />
+                      {this.state.septicPumpStateTimeSeries
+                        ? (
+                          <ScatterChart
+                            axis="pumpStateAxis"
+                            series={this.state.septicPumpStateTimeSeries}
+                            columns={["pumpState"]}
+                          />) : (<ValueList values={[]}/>)}
                     </Charts>
                   </ChartRow>
                   <ChartRow height="20">
@@ -309,12 +309,14 @@ class App extends Component {
                     />
 
                     <Charts>
-                      <ScatterChart
-                        axis="pumpStateAxis"
-                        series={this.state.sandFilterPumpStateTimeSeries}
-                        columns={["pumpState"]}
-                        style={styles}
-                      />
+                      {this.state.sandFilterPumpStateTimeSeries
+                        ? (
+                          <ScatterChart
+                            axis="pumpStateAxis"
+                            series={this.state.sandFilterPumpStateTimeSeries}
+                            columns={["pumpState"]}
+                            style={styles}
+                          />) : (<ValueList values={[]}/>)}
                     </Charts>
                   </ChartRow>
 
