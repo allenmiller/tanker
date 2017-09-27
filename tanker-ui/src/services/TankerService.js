@@ -31,11 +31,11 @@ export default {
     return this.tankerGet(url, "GET");
   },
 
-  getPumpState: function (start, end) {
+  getPumpState: function (start, end, pumpName) {
     let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
     url += "startTime=" + start;
     url += "&endTime=" + end;
-    url += "&dataSet=SEPTIC-PUMP";
+    url += "&dataSet=" + pumpName;
 
     return this.tankerGet(url, "GET");
   }

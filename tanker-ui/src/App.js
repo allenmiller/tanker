@@ -11,7 +11,9 @@ import {
   YAxis,
   LineChart,
   Resizable,
-  ScatterChart
+  ScatterChart,
+  ValueList,
+  styler
 } from "react-timeseries-charts";
 
 // Define tank levels in cm below ground level
@@ -19,23 +21,27 @@ import {
 //const groundLevel = 0;
 const topOfTank = 62;
 const alarmLevel = 90;
-const alertLevel = 106;
-const normalHigh = 121;
-const normalLow = 139;
+const alertLevel = 110;
+const normalHigh = 125;
+const normalLow = 150;
 const bottomOfTank = 202;
 
-const topOfGraph = 50;
-const bottomOfGraph = 150;
+const topOfGraph = 55;
+const bottomOfGraph = 160;
 
 const galPerCm = 8.2;
 const msPerDay = 86400000;
+const SEPTIC_PUMP = "SEPTIC-PUMP";
+const SANDFILTER_PUMP = "SANDFILTER-PUMP";
 
 class App extends Component {
 
   constructor(props) {
     super(props);
     let now = new Date();
-    this.state = {time: now.getTime()};
+    this.state = {
+      time: now.getTime(),
+    };
   }
 
   componentDidMount() {
@@ -43,12 +49,13 @@ class App extends Component {
     let d = new Date();
     let now = d.getTime();
     let yesterday = now - msPerDay;
-    let lastWeek = now - 7*msPerDay;
+    let lastWeek = now - 7 * msPerDay;
 
     let loadDataTimeRange = new TimeRange(lastWeek, now);
     let displayTimeRange = new TimeRange(yesterday, now);
     this.loadData(loadDataTimeRange);
-    this.loadPumpStateData(loadDataTimeRange);
+    this.loadPumpStateData(loadDataTimeRange, SEPTIC_PUMP);
+    this.loadPumpStateData(loadDataTimeRange, SANDFILTER_PUMP);
     this.setDisplayTimeRange(displayTimeRange);
   }
 
@@ -70,28 +77,32 @@ class App extends Component {
         graphData.points.push(point);
       });
       let lastDistance = graphData.points[graphData.points.length - 1][1];
-
-      let alarmCapacity = 0;
-      if (Math.abs(lastDistance) > alarmLevel) {
-        alarmCapacity = (Math.abs(lastDistance) - alarmLevel) * galPerCm;
-      }
-      let alertCapacity = 0;
-      if (Math.abs(lastDistance) > alertLevel) {
-        alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
-      }
       const levelTimeSeries = new TimeSeries(graphData);
-      this.setState({
-        alarmCapacity: Math.round(alarmCapacity),
-        alertCapacity: Math.round(alertCapacity),
-        levelTimeSeries: levelTimeSeries,
-      });
+      this.setState({levelTimeSeries: levelTimeSeries});
+      this.calculateCapacities(lastDistance);
     });
   };
 
-  loadPumpStateData = (timeRange) => {
+  calculateCapacities = (lastDistance) => {
+    let alarmCapacity = 0;
+    if (Math.abs(lastDistance) > alarmLevel) {
+      alarmCapacity = (Math.abs(lastDistance) - alarmLevel) * galPerCm;
+    }
+    let alertCapacity = 0;
+    if (Math.abs(lastDistance) > alertLevel) {
+      alertCapacity = (Math.abs(lastDistance) - alertLevel) * galPerCm;
+    }
+    this.setState({
+      alarmCapacity: Math.round(alarmCapacity),
+      alertCapacity: Math.round(alertCapacity),
+    });
+  };
+
+  loadPumpStateData = (timeRange, pumpName) => {
     let data = tanker.getPumpState(
       timeRange.begin().getTime(),
-      timeRange.end().getTime()
+      timeRange.end().getTime(),
+      pumpName
     );
     if (!data) {
       return;  // TODO: what is the right thing here?
@@ -99,7 +110,7 @@ class App extends Component {
     data.then((pumpStates) => {
       let stateArr = Array.from(pumpStates.Items);
       let graphData = {
-        name: "pumpState",
+        name: pumpName,
         columns: ["time", "pumpState"],
         points: []
       };
@@ -107,190 +118,219 @@ class App extends Component {
         let point = [p.timestamp, p.pumpState];
         graphData.points.push(point);
       });
-      const pumpStateTimeSeries = new TimeSeries(graphData);
-      this.setState({
-        pumpStateTimeSeries: pumpStateTimeSeries
-      });
+      let ts = new TimeSeries(graphData);
+      switch (pumpName) {
+        case SEPTIC_PUMP:
+          this.setState({septicPumpStateTimeSeries: ts});
+          break;
+        case SANDFILTER_PUMP:
+          this.setState({sandFilterPumpStateTimeSeries: ts});
+          break;
+        default:
+          console.log("Invalid pump name " + pumpName);
+      }
     });
   };
 
-    setDisplayTimeRange = (timeRange) => {
+  setDisplayTimeRange = (timeRange) => {
+
+    this.setState({
+      timeRange: timeRange
+    });
+  };
+
+  calculateTrackerColor = (eventLevel) => {
+    eventLevel = Math.abs(eventLevel);
+    if (eventLevel > normalLow) {
+      return "yellow";
+    }
+    if (eventLevel <= normalLow && eventLevel > alertLevel) {
+      return "white";
+    }
+    if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
+      return "yellow";
+    }
+    if (eventLevel <= alarmLevel) {
+      return "red";
+    }
+    return "white";
+  };
+
+  handleTrackerChanged = (t) => {
+    if (t && this.state.levelTimeSeries) {
+      const event = this.state.levelTimeSeries.atTime(t);
+      const eventLevel = event.get("distance");
+      let d = new Date();
+      let currTime = d.getTime();
+
+      let trackerColor = this.calculateTrackerColor(eventLevel);
 
       this.setState({
-        timeRange: timeRange
+        tracker: event.begin().getTime(),
+        trackerColor: trackerColor,
+        trackerValue: eventLevel,
+        trackerEvent: event,
+        time: currTime
       });
-    };
+      this.calculateCapacities(eventLevel);
+    } else {
+      this.setState({tracker: null, trackerValue: null, trackerEvent: null})
+    }
+  };
 
-    calculateTrackerColor = (eventLevel) => {
-      eventLevel = Math.abs(eventLevel);
-      if (eventLevel > normalLow) {
-        return "yellow";
-      }
-      if (eventLevel <= normalLow && eventLevel > alertLevel) {
-        return "white";
-      }
-      if (eventLevel <= alertLevel && eventLevel > alarmLevel) {
-        return "yellow";
-      }
-      if (eventLevel <= alarmLevel) {
-        return "red";
-      }
-      return "white";
-    };
+  handleTimeRangeChanged = (newTimerange) => {
+    this.setDisplayTimeRange(newTimerange);
+  };
 
-    handleTrackerChanged = (t) => {
-      if (t && this.state.levelTimeSeries) {
-        const event = this.state.levelTimeSeries.atTime(t);
-        const eventLevel = event.get("distance");
-        let d = new Date();
-        let currTime = d.getTime();
+  render() {
+    const styles = styler([
+      {key: "pumpState", color: "#46baa8"}
+    ]);
 
-        let trackerColor = this.calculateTrackerColor(eventLevel);
-
-        this.setState({
-          tracker: event.begin().getTime(),
-          trackerColor: trackerColor,
-          trackerValue: eventLevel,
-          trackerEvent: event,
-          time: currTime
-        });
-      } else {
-        this.setState({tracker: null, trackerValue: null, trackerEvent: null})
-      }
-    };
-
-    handleTimeRangeChanged = (newTimerange) => {
-      this.setDisplayTimeRange(newTimerange);
-    };
-
-    render()
-    {
-
-      return (
-        <div className="App">
-          <div className="App-intro">
-            <p>
-              {this.state.timeRange
-                ? this.state.timeRange.begin().toLocaleString() : " waiting... "}
-              {" to "}
-              {this.state.timeRange
-                ? this.state.timeRange.end().toLocaleString() : " waiting... "}.
-            </p>
-            <p>
-              {this.state.alertCapacity} gal until alert,&nbsp;
-              {this.state.alarmCapacity} gal until alarm.
-            </p>
-          </div>
-          <div>
-            {
-              this.state.timeRange
-                ? <Resizable>
-                  <ChartContainer
-                    enablePanZoom={true}
-                    minDuration={60000}
-                    maxTime={new Date()}
-                    timeRange={this.state.timeRange}
-                    onTrackerChanged={this.handleTrackerChanged}
-                    onTimeRangeChanged={this.handleTimeRangeChanged}
-                  >
-                    <ChartRow height="400">
-                      <YAxis
-                        id="distanceAxis"
-                        label="distance below ground (cm)"
-                        max={-topOfGraph}
-                        min={-bottomOfGraph}
-                      />
-                      <Charts>
-                        <LineChart
+    return (
+      <div className="App">
+        <div className="App-intro">
+          <p>
+            {this.state.timeRange
+              ? this.state.timeRange.humanize() : " waiting... "}
+          </p>
+          <p>
+            {this.state.alertCapacity} gal until alert,&nbsp;
+            {this.state.alarmCapacity} gal until alarm.
+          </p>
+        </div>
+        <div>
+          {
+            this.state.timeRange
+              ? <Resizable>
+                <ChartContainer
+                  enablePanZoom={true}
+                  minDuration={60000}
+                  maxTime={new Date()}
+                  timeRange={this.state.timeRange}
+                  onTrackerChanged={this.handleTrackerChanged}
+                  onTimeRangeChanged={this.handleTimeRangeChanged}
+                >
+                  <ChartRow height="350">
+                    <YAxis
+                      id="distanceAxis"
+                      label="distance below ground (cm)"
+                      max={-topOfGraph}
+                      min={-bottomOfGraph}
+                    />
+                    <Charts>
+                      {this.state.levelTimeSeries ?
+                        (<LineChart
                           axis="distanceAxis"
                           series={this.state.levelTimeSeries}
                           columns={["distance"]}
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={0}
-                          label="ground level"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-topOfTank}
-                          label="top of tank"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-alarmLevel}
-                          label="alarm"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-alertLevel}
-                          label="alert"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-normalHigh}
-                          label="normal high"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-normalLow}
-                          label="normal low"
-                        />
-                        <Baseline
-                          axis="distanceAxis"
-                          value={-bottomOfTank}
-                          label="bottom of tank"
-                        />
-                        <EventMarker
-                          style={{stroke: "black"}}
-                          type="flag"
-                          axis="distanceAxis"
-                          event={this.state.trackerEvent}
-                          column="distance"
-                          info={this.state.trackerValue ? this.state.trackerValue.toString() : ""}
-                          infoStyle={{
-                            fill: this.state.trackerColor,
-                            opacity: 0.5,
-                            stroke: "#000",
-                            strokeWidth: 1,
-                            pointerEvents: "none"
-                          }}
-                          markerRadius={4}
-                          // markerStyle={{fill: "black"}}
-                        />
-                      </Charts>
-                      <YAxis
-                        id="distanceAxis"
-                        label="distance below ground (cm)"
-                        max={-topOfGraph}
-                        min={-bottomOfGraph}
+                        />) : (<ValueList values={[]}></ValueList>)}
+                      <Baseline
+                        axis="distanceAxis"
+                        value={0}
+                        label="ground level"
                       />
-                    </ChartRow>
-                    <ChartRow height="20">
-                      <YAxis
-                        id="pumpStateAxis"
-                        max={1}
-                        min={1}
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-topOfTank}
+                        label="top of tank"
                       />
-                      <Charts>
-                        <ScatterChart
-                          axis="pumpStateAxis"
-                          series={this.state.pumpStateTimeSeries}
-                          columns={["pumpState"]}
-                        />
-                      </Charts>
-                    </ChartRow>
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-alarmLevel}
+                        label="alarm"
+                      />
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-alertLevel}
+                        label="alert"
+                      />
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-normalHigh}
+                        label="normal high"
+                      />
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-normalLow}
+                        label="normal low"
+                      />
+                      <Baseline
+                        axis="distanceAxis"
+                        value={-bottomOfTank}
+                        label="bottom of tank"
+                      />
+                      <EventMarker
+                        style={{stroke: "black"}}
+                        type="flag"
+                        axis="distanceAxis"
+                        event={this.state.trackerEvent}
+                        column="distance"
+                        info={this.state.trackerValue ? this.state.trackerValue.toString() : ""}
+                        infoStyle={{
+                          fill: this.state.trackerColor,
+                          opacity: 0.5,
+                          stroke: "#000",
+                          strokeWidth: 1,
+                          pointerEvents: "none"
+                        }}
+                        markerRadius={4}
+                        // markerStyle={{fill: "black"}}
+                      />
+                    </Charts>
+                    <YAxis
+                      id="distanceAxis"
+                      label="distance below ground (cm)"
+                      max={-topOfGraph}
+                      min={-bottomOfGraph}
+                    />
+                  </ChartRow>
+                  <ChartRow height="20">
+                    <YAxis
+                      id="pumpStateAxis"
+                      max={1}
+                      min={1}
+                    />
 
-                  </ChartContainer>
-                </Resizable>
-                : <div>
-                  No data
-                </div>
-            }
-          </div>
+                    <Charts>
+                      {this.state.septicPumpStateTimeSeries
+                        ? (
+                          <ScatterChart
+                            axis="pumpStateAxis"
+                            series={this.state.septicPumpStateTimeSeries}
+                            columns={["pumpState"]}
+                          />) : (<ValueList values={[]}/>)}
+                    </Charts>
+                  </ChartRow>
+                  <ChartRow height="20">
+                    <YAxis
+                      id="pumpStateAxis"
+                      max={1}
+                      min={1}
+                    />
+
+                    <Charts>
+                      {this.state.sandFilterPumpStateTimeSeries
+                        ? (
+                          <ScatterChart
+                            axis="pumpStateAxis"
+                            series={this.state.sandFilterPumpStateTimeSeries}
+                            columns={["pumpState"]}
+                            style={styles}
+                          />) : (<ValueList values={[]}/>)}
+                    </Charts>
+                  </ChartRow>
+
+                </ChartContainer>
+              </Resizable>
+              : <div>
+                No data
+              </div>
+          }
         </div>
-      );
-    }
+      </div>
+    );
   }
+}
 
 export default App;
