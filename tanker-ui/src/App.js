@@ -187,6 +187,9 @@ class App extends Component {
       {key: "pumpState", color: "#46baa8"}
     ]);
 
+    let now = new Date();
+    let earlier = new Date(now.getTime() - 7 * msPerDay);
+
     return (
       <div className="App">
         <div className="App-intro">
@@ -206,7 +209,8 @@ class App extends Component {
                 <ChartContainer
                   enablePanZoom={true}
                   minDuration={60000}
-                  maxTime={new Date()}
+                  minTime={earlier}
+                  maxTime={now}
                   timeRange={this.state.timeRange}
                   onTrackerChanged={this.handleTrackerChanged}
                   onTimeRangeChanged={this.handleTimeRangeChanged}

@@ -27,7 +27,7 @@ exports.handler = (event, context, callback) => {
     startTime = event.queryStringParameters.startTime;
     endTime = event.queryStringParameters.endTime;
     latest = event.queryStringParameters.latest;
-    dataSet = event.queryStringParameters.dataset;
+    dataSet = event.queryStringParameters.dataSet;
   }
 
   let d = new Date();
@@ -44,7 +44,7 @@ exports.handler = (event, context, callback) => {
   } else {
     primaryKey = "secondary";
   }
-
+  console.log(primaryKey);
   let params = {
     TableName: "tank2",
     KeyConditionExpression: "tank = :tk AND #ts BETWEEN :start and :end",

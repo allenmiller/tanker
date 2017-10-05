@@ -1,2 +1,9 @@
 npm run build
 aws --profile ${profile} s3 sync --delete build s3://${bucket}/
+
+
+Create DNS Hosted zone "tanker.ajmiller.net" in Route53,
+Create CNAME graph.tanker.ajmiller.net. CNAME tanker-ui.ajmiller.net.s3.amazonaws.com
+
+Delegate NS records for tanker.ajmiller.net in Hostway to point to R53
+

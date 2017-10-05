@@ -146,3 +146,21 @@ Measured          Reported
 202                187
 248                238
 ````
+S3 -- Create new bucket tanker.ajmiller.net
+Enable web hosting
+S3 Bucket Policy
+````
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AddPerm",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::tanker.ajmiller.net/*"
+        }
+    ]
+}
+````
+Default CORS configuration works.

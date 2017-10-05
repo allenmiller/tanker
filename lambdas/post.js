@@ -71,6 +71,7 @@ exports.handler = (event, context, callback) => {
 
   console.log("writing: ", record);
   dynamo.putItem({TableName: "tank2", Item: record}, done);
+
   let ipRecord = {
     "tank": "latestIp",
     "timestamp": 0,

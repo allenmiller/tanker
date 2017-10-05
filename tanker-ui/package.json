@@ -2,7 +2,7 @@
   "name": "tanker-ui",
   "version": "0.1.1",
   "private": true,
-  "homepage": "https://s3-us-west-2.amazonaws.com/tanker-ui.ajmiller.net/",
+  "homepage": "https://tanker.ajmiller.net/",
   "dependencies": {
     "pondjs": "^0.8.7",
     "react": "^15.6.1",

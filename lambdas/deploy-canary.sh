@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-rm -rf build
-mkdir build
+rm -f build/canary.js.zip
+mkdir -p build
 
 zip build/canary.js.zip canary.js
 
