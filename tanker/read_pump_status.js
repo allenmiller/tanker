@@ -31,7 +31,6 @@ post_result = (record) => {
       console.log("ERROR");
       console.log(response);
       console.log(body);
-      throw error;
     }
 
   });
