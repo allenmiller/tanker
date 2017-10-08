@@ -29,7 +29,7 @@ const bottomOfTank = 202;
 const topOfGraph = 55;
 const bottomOfGraph = 160;
 
-const galPerCm = 8.2;
+const galPerCm = 8.67;
 const msPerDay = 86400000;
 const SEPTIC_PUMP = "SEPTIC-PUMP";
 const SANDFILTER_PUMP = "SANDFILTER-PUMP";

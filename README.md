@@ -129,10 +129,11 @@ Pump Tank characteristics
 ````
 Capacity     1150 gal   4353 l
 Height         55  in    140 cm
-Cap/Height  21 gal/in 8.2 gal/cm  31.1 l/cm
+Cap/Height  22 gal/in 8.67 gal/cm  30.6 l/cm
 
-Volume consumed at lower limit: 533 gal
-Volume consumed at alarm level: 918 gal
+Volume consumed at lower limit: 564 gal
+Volume consumed at normal high: 702 gal
+Volume consumed at alarm level: 971 gal
 ````
 
 Lidar detector calibration
