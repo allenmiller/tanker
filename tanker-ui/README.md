@@ -1,4 +1,6 @@
 npm run build
+profile=ajmiller
+bucket=tanker.ajmiller.net
 aws --profile ${profile} s3 sync --delete build s3://${bucket}/
 
 
