@@ -20,7 +20,7 @@ const dynamo = new doc.DynamoDB();
 
 const TOP_OF_TANK = 62;
 const ALARM_LEVEL = 90;
-const ALERT_LEVEL = 110;
+const ALERT_LEVEL = 100;
 const LOWER_LIMIT = 137;
 const BOTTOM = 202;
 
