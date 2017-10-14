@@ -21,7 +21,7 @@ import {
 //const groundLevel = 0;
 const topOfTank = 62;
 const alarmLevel = 90;
-const alertLevel = 110;
+const alertLevel = 100;
 const normalHigh = 125;
 const normalLow = 150;
 const bottomOfTank = 202;
