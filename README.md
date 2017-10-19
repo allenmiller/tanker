@@ -109,6 +109,20 @@ Install tanker
 
 npm install tanker
 
+i2c clock stretching bug:
+````
+https://github.com/fivdi/i2c-bus/issues/36
+
+The default baudrate on the raspberry Pi is 100000. It can be lowered to 10000 by adding the following line to /boot/config.txt and rebooting the Pi.
+
+dtparam=i2c_baudrate=10000
+
+````
+
+Raspberry Pi watchdog reset
+````
+https://raspberrypi.stackexchange.com/questions/1401/how-do-i-hard-reset-a-raspberry-pi
+````
 
 Backend web server and database manager for Tanker
 
