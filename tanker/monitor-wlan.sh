@@ -6,10 +6,11 @@ while [ 1 ] ; do
     online=$?
     date
     if [ ${online} -eq 0 ] ; then
-	echo "we are online"
+	echo "online"
     else
-	echo "OFFLINE"
+	echo "OFFLINE, restarting networking"
 	iwlist wlan0 scan
+ 	sudo systemctl restart networking.service
     fi
 
     sleep 300
