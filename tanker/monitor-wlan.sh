@@ -15,9 +15,10 @@ while [ 1 ] ; do
 	iwlist wlan0 scan
 	service --status-all
 	echo executing ifconfig
-	sudo ifconfig wlan0 up
-	sleep 60
-	ip a
+	# sudo ifconfig wlan0 up
+	sudo shutdown -r now
+	# sleep 60
+	# ip a
  	# sudo systemctl restart networking.service
     fi
 
