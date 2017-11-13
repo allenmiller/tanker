@@ -1,5 +1,6 @@
 const PythonShell = require('python-shell');
 const request = require('request');
+const fs = require('fs');
 
 let pyshell = new PythonShell('test.py',
   {scriptPath: '/home/pi/git/github.com/Sanderi44/Lidar-Lite/python/'});
@@ -23,9 +24,15 @@ post_result = (record) => {
     body: record
   }, function (error, response, body) {
     if (error) {
-      console.log("ERROR");
+      console.log("ERROR posting record");
       console.log(response);
       console.log(body);
+      console.log("attempting to save locally");
+      fs.appendFile('levels.js', body, (err) => {
+        "use strict";
+        if (err) throw err;
+        console.log("Saved locally")
+      });
       throw error;
     }
 
