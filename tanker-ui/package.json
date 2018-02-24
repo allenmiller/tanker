@@ -4,10 +4,10 @@
   "private": true,
   "homepage": "https://tanker.ajmiller.net/",
   "dependencies": {
-    "pondjs": "^0.8.7",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-resizable": "^1.7.1",
+    "pondjs": "^0.8.8",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "react-resizable": "^1.7.5",
     "react-resizable-box": "^2.0.6",
     "react-scripts": "1.0.10",
     "react-timeseries-charts": "^0.12.8"
