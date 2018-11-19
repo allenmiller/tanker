@@ -1,0 +1,16 @@
+# Example of the DNS managed zone template usage.
+#
+# In this example, a DNS managed zone is created with the use of
+# the `zoneName` and `dnsName` properties. 
+
+imports:
+  - path: ../dns_managed_zone.py
+    name: dns_managed_zone.py
+
+resources:
+  - name: tank
+    type: dns_managed_zone.py
+    properties:
+      zoneName: tank
+      dnsName: tank.ajmiller.net.
+      description: 'Managed Zone for tank monitor.'
