@@ -23,7 +23,7 @@ export default {
   },
 
   getLevels: function (start, end) {
-    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
+    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/prod/tanker?";
     url += "startTime=" + start;
     url += "&endTime=" + end;
     url += "&dataSet=secondary";
@@ -32,7 +32,7 @@ export default {
   },
 
   getPumpState: function (start, end, pumpName) {
-    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/test/tanker?";
+    let url = "https://3nxzqsgs8k.execute-api.us-east-1.amazonaws.com/prod/tanker?";
     url += "startTime=" + start;
     url += "&endTime=" + end;
     url += "&dataSet=" + pumpName;

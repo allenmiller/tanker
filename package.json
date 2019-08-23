@@ -1,0 +1,22 @@
+{
+  "name": "tanker",
+  "version": "1.0.0",
+  "description": "Tank monitor",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allenmiller/tanker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/allenmiller/tanker/issues"
+  },
+  "homepage": "https://github.com/allenmiller/tanker#readme"
+}

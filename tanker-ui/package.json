@@ -2,21 +2,32 @@
   "name": "tanker-ui",
   "version": "0.1.2",
   "private": true,
-  "homepage": "https://tanker.ajmiller.net/",
+  "homepage": "https://graph.tanker.ajmiller.net/",
   "dependencies": {
-    "ajv": "^6.0.0",
-    "pondjs": "^0.8.8",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
+    "ajv": "^6.10.0",
+    "aws-amplify": "^1.1.23",
+    "aws-sdk": "^2.434.0",
+    "braces": "^2.3.2",
+    "pondjs": "^0.8.10",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-resizable": "^1.7.5",
     "react-resizable-box": "^2.1.0",
-    "react-scripts": "^1.1.5",
-    "react-timeseries-charts": "^0.15.5"
+    "react-scripts": "^2.1.8",
+    "react-timeseries-charts": "^0.15.5",
+    "ts-pnp": "^1.0.1",
+    "typescript": "^3.4.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
