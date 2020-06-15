@@ -108,6 +108,7 @@ gpio mode 25 in # Septic tank pump, physical pin 37
 Install tanker
 
 npm install tanker
+npm install i2c-bus
 
 i2c clock stretching bug:
 ````
