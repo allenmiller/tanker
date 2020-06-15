@@ -8,17 +8,7 @@
     "node-ads1x15": "^1.0.0",
     "python-shell": "^0.4.0",
     "raspi-io": "^8.0.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-scripts": "1.0.10",
-    "react-timeseries-charts": "^0.12.8",
     "request": "^2.81.0",
     "rpi-gpio": "^2.1.7"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
   }
 }
