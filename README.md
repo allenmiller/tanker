@@ -1,13 +1,15 @@
-#Set up Raspberry Pi
-https://www.raspberrypi.org/documentation/configuration/wireless/headless.md
+# Set up Raspberry Pi
+
+<https://www.raspberrypi.org/documentation/configuration/wireless/headless.md>
+
 ## Install Raspbian
 
-Download and Install the Raspberry Pi Imager (currently v1.3)
-Insert blank micro-SD card
-Run RPI Imager
-Select "Raspberry Pi OS Desktop (32-bit)"
-Choose SD card
-Click "Write"
+1. Download and Install the Raspberry Pi Imager (currently v1.3)
+2. Insert blank micro-SD card
+3. Run RPI Imager
+4. Select "Raspberry Pi OS Desktop (32-bit)"
+5. Choose SD card
+6. Click "Write"
 
 ## Configure Wifi access
 
@@ -78,10 +80,12 @@ cd ~tanker
 exit
 exit
 ssh tanker@<ip>
-sudo pkill -u pi # why are there still pi processes?
+Use raspi-config -> Boot Options -> Console to disable auto login of pi user.
+sudo pkill -u pi
 sudo deluser -remove-home pi
-sudo apt install emacs-nox
-sudo apt install tmux
+sudo apt update
+sudo apt install emacs-nox tmux
+sudo apt full-upgrade
 sudo emacs /etc/ssh/sshd_config
 There are three lines that need to be changed to no, if they are not set that way already:
 
@@ -99,14 +103,9 @@ Give it a hostname and change the default password:
   sudo vi /etc/hosts
    < add hostname (tortoise in this case) to the first line, after localhost >
 ````
+raspi-config enable I2C driver, set time zone.
 
-Update OS to latest versions
 
-````
-  sudo apt update
-  sudo apt full-upgrade
-  sudo apt install emacs-nox
-````
 raspi-config enable I2C driver, set time zone.
 
 
@@ -115,23 +114,6 @@ Update node.js.  Need to pay attention to processor architecture 'uname -m'
 
 curl -L https://git.io/n-install | bash
 
-- or -
-
-
-https://stackoverflow.com/questions/42741243/how-do-you-install-newest-version-of-node-js-on-raspberry-pi
-install latest appropriate node.js https://nodejs.org
-wget https://nodejs.org/dist/v12.18.1/node-v12.18.1-linux-armv7l.tar.xz # RPI 3: ARM 7 - 64 bit
-wget https://nodejs.org/download/release/latest-v10.x/node-v10.21.0-linux-armv6l.tar.xz  # RPI Zero: ARM 6 - 32 bit
-
-tar Jxvf node-v12.18.1-linux-armv7l.tar.xz
-cd node-v6.11.1-linux-armv6l/
-sudo cp -R * /usr/local/
-
-https://github.com/nodejs/help/wiki/Installation
-
-
-
-pi@tortoise:~ $ . /home/pi/.bashrc
 pi@tortoise:~ $ node -v
 v8.4.0
 pi@tortoise:~ $ npm --version
@@ -148,16 +130,20 @@ Add following to ~/.ssh/config
 ````
 host github.com
   Hostname github.com
-  IdentityFile ~/.ssh/tanker
-  User gi
+  IdentityFile ~/.ssh/<private key file name>
+  User git
 ````
 Configure and clone the repo
 ````
 git config --global pull.rebase true
+git config --global user.email al.miller@ajmiller.net
+git config --global user.name "Allen Miller"
 git clone git@github.com:allenmiller/tanker.git
 cd tanker/tanker
 npm install
 
+Could not find the bindings file.
+Try; npm install node-gyp
 ````
 Configure gpio ports for Pump monitor
 
