@@ -7,6 +7,6 @@
   "dependencies": {
     "i2c-bus": "^5.1.0",
     "request": "^2.88.2",
-    "rpi-gpio": "^2.1.7"
+    "onoff": "^6.0.0"
   }
 }
