@@ -1,0 +1,13 @@
+[Unit]
+Description=tanker - run tank monitor
+Documentation=https://github.com/allenmiller/tanker
+After=network.target
+
+[Service]
+Type=simple
+User=tanker
+ExecStart=/home/tanker/n/bin/node /home/tanker/git/github.com/allenmiller/tanker/tanker/read_maxbotix_i2c.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
