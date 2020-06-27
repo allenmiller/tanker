@@ -5,52 +5,45 @@ const Gpio = require('onoff').Gpio;
 const i2c = require('i2c-bus')
 const request = require('request');
 
-const MINS_15_MS               = 900000
-const SECS_5_MS                = 5000
+const MINS_15_MS               = 900000;
+const SECS_5_MS                = 5000;
 
-const I2C_BUS                  = 1
-const MAXBOTIX_BUS_ADDR        = 0x70
-const MAXBOTIX_WAIT_TIME_MS    = 100
-const MEASURE_RANGE_COMMAND    = 0x51
-const READ_MEASUREMENT_ADDRESS = 0xE1
+const I2C_BUS                  = 1;
+const MAXBOTIX_BUS_ADDR        = 0x70;
+const MAXBOTIX_WAIT_TIME_MS    = 100;
+const MEASURE_RANGE_COMMAND    = 0x51;
+const READ_MEASUREMENT_ADDRESS = 0xE1;
 const SENSOR_LEVEL             = 33;  // cm below ground level
-const SENSOR_NAME              = "MB_7040_100"
+const SENSOR_NAME              = "MB_7040_100";
 const SENSOR_OFFSET            = 0;   // constant error in sensor position.
+const SEPTIC_PUMP_PIN          = 4;
+const SANDFILTER_PUMP_PIN      = 17;
 
-const POST_URL = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker'
+const POST_URL = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
 
-let running = true;
-let timeouts = [];
+let readTankLevelInterval;
+let septicPumpInterval;
+let sandFilterPumpInterval;
 
 function swapBytes(word) {
     return ((word & 0xff00) >> 8) | ((word & 0xff) << 8);
 }
 
-async function delay(timeouts, index, ms) {
-    return new Promise(resolve => {
-	timeouts[index] = setTimeout(resolve, ms);
-    });
+async function delay(ms) {
+    return new Promise(resolve => { setTimeout(resolve, ms); });
 }
 
 async function getDistance(i2cBus) {
     i2cBus.writeByteSync(MAXBOTIX_BUS_ADDR, 0, MEASURE_RANGE_COMMAND)
-    await delay(timeouts, 3, MAXBOTIX_WAIT_TIME_MS)
+    await delay(MAXBOTIX_WAIT_TIME_MS)
     const rawData = i2cBus.readWordSync(MAXBOTIX_BUS_ADDR, READ_MEASUREMENT_ADDRESS);
     return swapBytes(rawData)
 }
 
-async function driveTankLevelLoop(ms) {
-    const i2cBus = i2c.openSync(I2C_BUS);
-    while (running) {
-	console.log("getting a point")
-	getDistance(i2cBus)
-	    .then(distance => { postResult(distance) })
-	    .catch(err => { console.log(err) })
-	await delay(timeouts, 0, ms);
-	console.log("after getDistance() delay");
-    }
-    console.log("Cancelling tank level data collection")
-    i2cBus.closeSync();
+function readTankLevel(i2cBus) {
+    getDistance(i2cBus)
+	.then(distance => { postResult(distance) })
+	.catch(err => { console.log(err) })
 }
 
 function buildLevelRecord(distance) {
@@ -85,26 +78,25 @@ function postResult(distance) {
     });
   };
 
-async function drivePumpSensorLoop(tankName, GpioPin, ms, index) {
+function readPumpStatus(tankName, GpioPin) {
     const sensor = new Gpio(GpioPin, 'in');
-    while (running) {
-	pumpState = sensor.readSync();
-	console.log("%s: %s", tankName, pumpState)
-	await delay(timeouts, index, ms)
-	console.log("after delay")
-    }
-    console.log("Stopping pump sensor for %s",tankName)
+    pumpState = sensor.readSync();
+    console.log("%s: %s", tankName, pumpState)
 }
 
 process.on("SIGTERM", () => {
     console.log("Shutting down");
-    running = false;
-    clearTimeout(timeouts[0]);
-    clearTimeout(timeouts[1]);
-    clearTimeout(timeouts[2]);
-    console.log("Cleared timeouts")
+    clearInterval(readTankLevelInterval);
+    clearInterval(septicPumpInterval);
+    clearInterval(sandFilterPumpInterval);
+    i2cBus.closeSync();
+    console.log("Cleared intervals and closed i2c bus")
 })
 
-driveTankLevelLoop(MINS_15_MS);
-drivePumpSensorLoop("SEPTIC-PUMP", 4, SECS_5_MS, 1)
-drivePumpSensorLoop("SANDFILTER-PUMP", 17, SECS_5_MS, 2)
+let i2cBus = i2c.openSync(I2C_BUS);
+readTankLevel(i2cBus);
+readPumpStatus("SEPTIC-PUMP", SEPTIC_PUMP_PIN);
+readPumpStatus("SANDFILTER-PUMP", SANDFILTER_PUMP_PIN);
+readTankLevelInterval = setInterval(readTankLevel, MINS_15_MS, i2cBus);
+septicPumpInterval = setInterval(readPumpStatus, SECS_5_MS, "SEPTIC-PUMP", SEPTIC_PUMP_PIN)
+sandFilterPumpInterval = setInterval(readPumpStatus, SECS_5_MS, "SANDFILTER-PUMP", SANDFILTER_PUMP_PIN)
