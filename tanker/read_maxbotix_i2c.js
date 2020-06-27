@@ -5,6 +5,9 @@ const Gpio = require('onoff').Gpio;
 const i2c = require('i2c-bus')
 const request = require('request');
 
+const MINS_15_MS               = 900000
+const SECS_5_MS                = 5000
+
 const I2C_BUS                  = 1
 const MAXBOTIX_BUS_ADDR        = 0x70
 const MAXBOTIX_WAIT_TIME_MS    = 100
@@ -16,31 +19,38 @@ const SENSOR_OFFSET            = 0;   // constant error in sensor position.
 
 const POST_URL = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker'
 
+let running = true;
+let timeouts = [];
+
 function swapBytes(word) {
     return ((word & 0xff00) >> 8) | ((word & 0xff) << 8);
 }
 
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+async function delay(timeouts, index, ms) {
+    return new Promise(resolve => {
+	timeouts[index] = setTimeout(resolve, ms);
+    });
 }
 
 async function getDistance(i2cBus) {
     i2cBus.writeByteSync(MAXBOTIX_BUS_ADDR, 0, MEASURE_RANGE_COMMAND)
-    await delay(MAXBOTIX_WAIT_TIME_MS)
+    await delay(timeouts, 3, MAXBOTIX_WAIT_TIME_MS)
     const rawData = i2cBus.readWordSync(MAXBOTIX_BUS_ADDR, READ_MEASUREMENT_ADDRESS);
     return swapBytes(rawData)
 }
 
 async function driveTankLevelLoop(ms) {
     const i2cBus = i2c.openSync(I2C_BUS);
-    while (true) {
+    while (running) {
 	console.log("getting a point")
 	getDistance(i2cBus)
 	    .then(distance => { postResult(distance) })
 	    .catch(err => { console.log(err) })
-	await delay(ms)
+	await delay(timeouts, 0, ms);
+	console.log("after getDistance() delay");
     }
-    i2cBus.closeSync();  // will never hit this, need graceful shutdown
+    console.log("Cancelling tank level data collection")
+    i2cBus.closeSync();
 }
 
 function buildLevelRecord(distance) {
@@ -75,17 +85,26 @@ function postResult(distance) {
     });
   };
 
-async function drivePumpSensorLoop(tankName, GpioPin, ms) {
+async function drivePumpSensorLoop(tankName, GpioPin, ms, index) {
     const sensor = new Gpio(GpioPin, 'in');
-    while (true) {
+    while (running) {
 	pumpState = sensor.readSync();
 	console.log("%s: %s", tankName, pumpState)
-	await delay(ms)
+	await delay(timeouts, index, ms)
+	console.log("after delay")
     }
+    console.log("Stopping pump sensor for %s",tankName)
 }
 
-driveTankLevelLoop(15000);
-drivePumpSensorLoop("SEPTIC", 4, 5000)
-drivePumpSensorLoop("SAND", 17, 5000)
+process.on("SIGTERM", () => {
+    console.log("Shutting down");
+    running = false;
+    clearTimeout(timeouts[0]);
+    clearTimeout(timeouts[1]);
+    clearTimeout(timeouts[2]);
+    console.log("Cleared timeouts")
+})
 
-console.log("End")
+driveTankLevelLoop(MINS_15_MS);
+drivePumpSensorLoop("SEPTIC-PUMP", 4, SECS_5_MS, 1)
+drivePumpSensorLoop("SANDFILTER-PUMP", 17, SECS_5_MS, 2)
