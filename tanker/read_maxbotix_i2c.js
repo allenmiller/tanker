@@ -42,21 +42,30 @@ async function getDistance(i2cBus) {
 
 function readTankLevel(i2cBus) {
     getDistance(i2cBus)
-	.then(distance => { postResult(distance) })
+	.then(distance => { postRecord(buildLevelRecord(distance)) })
 	.catch(err => { console.log(err) })
 }
 
 function buildLevelRecord(distance) {
     let record = {};
+    record.type = "LEVEL";
     record.sensor = SENSOR_NAME;
     record.sensorLevel = SENSOR_LEVEL;
     record.distance_cm = distance + SENSOR_OFFSET;
     record.time = (new Date()).getTime();
-    return record
+    return record;
 }
 
-function postResult(distance) {
-    record = buildLevelRecord(distance)
+function buildPumpRecord(pump) {
+    let record = {};
+    record.type = "PUMP_STATE";
+    record.tank = pump;
+    record.state = 1;
+    record.time = (new Date()).getTime();
+    return record;
+}
+
+function postRecord(record) {
     console.log("Posting ", record);
     request.post({
       url: POST_URL,
@@ -81,6 +90,9 @@ function postResult(distance) {
 function readPumpStatus(tankName, GpioPin) {
     const sensor = new Gpio(GpioPin, 'in');
     pumpState = sensor.readSync();
+    if (pumpState) {
+	postRecord(buildPumpRecord(tankName));
+    }
     console.log("%s: %s", tankName, pumpState)
 }
 
