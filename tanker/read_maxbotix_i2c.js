@@ -1,6 +1,3 @@
-//i2cset -y 1 0x70 0x51 && sleep 1 && i2cget -y 1 0x70 0xE1 w
-console.log("Starting")
-
 const Gpio = require('onoff').Gpio;
 const i2c = require('i2c-bus')
 const request = require('request');
@@ -16,8 +13,8 @@ const READ_MEASUREMENT_ADDRESS = 0xE1;
 const SENSOR_LEVEL             = 33;  // cm below ground level
 const SENSOR_NAME              = "MB_7040_100";
 const SENSOR_OFFSET            = 0;   // constant error in sensor position.
-const SEPTIC_PUMP_PIN          = 4;
-const SANDFILTER_PUMP_PIN      = 17;
+const SEPTIC_PUMP_PIN          = 26;  // physical pin 37
+const SANDFILTER_PUMP_PIN      = 20;  // physical pin 38
 
 const POST_URL = 'https://rmecu0chj5.execute-api.us-east-1.amazonaws.com/prod/tanker';
 
@@ -34,6 +31,7 @@ async function delay(ms) {
 }
 
 async function getDistance(i2cBus) {
+    //i2cset -y 1 0x70 0x51 && sleep 1 && i2cget -y 1 0x70 0xE1 w
     i2cBus.writeByteSync(MAXBOTIX_BUS_ADDR, 0, MEASURE_RANGE_COMMAND)
     await delay(MAXBOTIX_WAIT_TIME_MS)
     const rawData = i2cBus.readWordSync(MAXBOTIX_BUS_ADDR, READ_MEASUREMENT_ADDRESS);
