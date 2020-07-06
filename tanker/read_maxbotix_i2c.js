@@ -3,6 +3,7 @@ const i2c = require('i2c-bus')
 const request = require('request');
 
 const MINS_15_MS               = 900000;
+const MINS_5_MS                = 300000;
 const SECS_5_MS                = 5000;
 
 const I2C_BUS                  = 1;
@@ -10,7 +11,7 @@ const MAXBOTIX_BUS_ADDR        = 0x70;
 const MAXBOTIX_WAIT_TIME_MS    = 100;
 const MEASURE_RANGE_COMMAND    = 0x51;
 const READ_MEASUREMENT_ADDRESS = 0xE1;
-const SENSOR_LEVEL             = 33;  // cm below ground level
+const SENSOR_LEVEL             = 47;  // cm below ground level
 const SENSOR_NAME              = "MB_7040_100";
 const SENSOR_OFFSET            = 0;   // constant error in sensor position.
 const SEPTIC_PUMP_PIN          = 26;  // physical pin 37
@@ -107,6 +108,6 @@ let i2cBus = i2c.openSync(I2C_BUS);
 readTankLevel(i2cBus);
 readPumpStatus("SEPTIC-PUMP", SEPTIC_PUMP_PIN);
 readPumpStatus("SANDFILTER-PUMP", SANDFILTER_PUMP_PIN);
-readTankLevelInterval = setInterval(readTankLevel, MINS_15_MS, i2cBus);
+readTankLevelInterval = setInterval(readTankLevel, MINS_5_MS, i2cBus);
 septicPumpInterval = setInterval(readPumpStatus, SECS_5_MS, "SEPTIC-PUMP", SEPTIC_PUMP_PIN)
 sandFilterPumpInterval = setInterval(readPumpStatus, SECS_5_MS, "SANDFILTER-PUMP", SANDFILTER_PUMP_PIN)
