@@ -23,11 +23,11 @@ const topOfTank = 62;
 const alarmLevel = 90;
 const alertLevel = 100;
 const normalHigh = 115;
-const normalLow = 140;
+const normalLow = 131 ;
 const bottomOfTank = 202;
 
 const topOfGraph = 55;
-const bottomOfGraph = 160;
+const bottomOfGraph = 150;
 
 const galPerCm = 8.67;
 const msPerDay = 86400000;
