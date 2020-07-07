@@ -22,8 +22,8 @@ import {
 const topOfTank = 62;
 const alarmLevel = 90;
 const alertLevel = 100;
-const normalHigh = 125;
-const normalLow = 150;
+const normalHigh = 115;
+const normalLow = 140;
 const bottomOfTank = 202;
 
 const topOfGraph = 55;

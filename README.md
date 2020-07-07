@@ -1,22 +1,17 @@
-#Set up Raspberry Pi
+# Set up Raspberry Pi
+
+<https://www.raspberrypi.org/documentation/configuration/wireless/headless.md>
 
 ## Install Raspbian
-  https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-without-ethernet
-  https://www.raspberrypi.org/forums/viewtopic.php?t=74176
-  
-https://davidmaitland.me/2015/12/raspberry-pi-zero-headless-setup/
 
-  Download latest
-  unzip 2017-08-16-raspbian-stretch.zip
-  Load microSD card into USB adapter and plug into the mac
+1. Download and Install the Raspberry Pi Imager (currently v1.3)
+2. Insert blank micro-SD card
+3. Run RPI Imager
+4. Select "Raspberry Pi OS Desktop (32-bit)"
+5. Choose SD card
+6. Click "Write"
 
-  Unmount the microSD volume
-  sudo diskutil unmount /dev/disk2s1
-  sudo dd bs=1m if=2017-08-16-raspbian-stretch.img of=/dev/rdisk2
-4680+1 records in
-4680+1 records out
-4907675648 bytes transferred in 407.905175 secs (12031413 bytes/sec)
-  
+## Configure Wifi access
 
   cd /Volumes/boot
 
@@ -24,10 +19,11 @@ https://davidmaitland.me/2015/12/raspberry-pi-zero-headless-setup/
 
   ````
   ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+  update_config=1
+  country=US
   network={
     ssid="MYSSID"
     psk="MYPASSWD"
-    key_mgmt=WPA-PSK
   }
   ````
 
@@ -36,11 +32,16 @@ https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-withou
 
   enable ssh:
 
+  ````
+
   touch ssh
   cd
-  sudo diskutil unmount /dev/disk2s1
+
+  ````
+  Unmount/eject /Volumes/boot
 
   remove microSD card from mac, insert in Raspberry Pi, power up.
+  May need to port scan to find IP address
 ````
   sudo nmap -sP 10.0.0.0/24
   
@@ -55,66 +56,113 @@ https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-withou
 ...
   Nmap done: 256 IP addresses (10 hosts up) scanned in 5.29 seconds
   
-
+  ssh pi@<IP> password raspberry
+  passwd # change default password immediately
 ````
-Give it a hostname and change the default password:
+Lock down password-based logins and evaluate other security considerations
 ````
-  sudo hostname tortoise
-  sudo vi /etc/hosts
-   < add hostname (tortoise in this case) to the first line, after localhost >
-  passwd
+sudo visudo
 ````
-Install your public key
-
+%sudo   ALL=(ALL:ALL) NOPASSWD: ALL
 ````
+Add user tanker
+````
+sudo adduser tanker
+sudo usermod -a -G adm,sudo,plugdev,users,input,netdev,gpio,i2c,spi tanker
+sudo -u tanker bash
+cd ~tanker
   mkdir .ssh
   chmod 755 .ssh
   cd .ssh
   nano authorized_keys
     <copy your public key>
   chmod 644 authorized_keys
-  
-````
+exit
+exit
+ssh tanker@<ip>
+Use raspi-config -> Boot Options -> Console to disable auto login of pi user.
+sudo pkill -u pi
+sudo deluser -remove-home pi
+sudo apt update
+sudo apt install emacs-nox tmux
+sudo apt full-upgrade
+sudo emacs /etc/ssh/sshd_config
+There are three lines that need to be changed to no, if they are not set that way already:
 
-Update OS to latest versions
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no
+sudo service ssh reload
 
-````
-  sudo apt-get update
-  sudo apt-get upgrade
-````
+https://www.raspberrypi.org/documentation/configuration/security.md
 
-Update node.js
+
+Give it a hostname and change the default password:
 ````
-https://stackoverflow.com/questions/42741243/how-do-you-install-newest-version-of-node-js-on-raspberry-pi
-sudo apt-get remove nodered
-sudo apt-get remove nodejs nodejs-legacy
-sudo apt-get autoremove
+  sudo hostname tortoise
+  sudo vi /etc/hosts
+   < add hostname (tortoise in this case) to the first line, after localhost >
+````
+raspi-config enable I2C driver, set time zone.
+
+
+raspi-config enable I2C driver, set time zone.
+
+
+Update node.js.  Need to pay attention to processor architecture 'uname -m'
+````
 
 curl -L https://git.io/n-install | bash
 
-pi@tortoise:~ $ . /home/pi/.bashrc
 pi@tortoise:~ $ node -v
 v8.4.0
 pi@tortoise:~ $ npm --version
 5.3.0
  
 ````
+download tanker source
+````
+mkdir -p git/github.com/allenmiller
+cd $_
+````
+Generate SSH key pair, upload public key to github
+Add following to ~/.ssh/config
+````
+host github.com
+  Hostname github.com
+  IdentityFile ~/.ssh/<private key file name>
+  User git
+````
+Configure and clone the repo
+````
+git config --global pull.rebase true
+git config --global user.email al.miller@ajmiller.net
+git config --global user.name "Allen Miller"
+git clone git@github.com:allenmiller/tanker.git
+cd tanker/tanker
+npm install
 
+Could not find the bindings file.
+Try; npm install node-gyp
+````
 Configure gpio ports for Pump monitor
 
 gpio mode 24 in # Sand filter pump, physical pin 35
 gpio mode 25 in # Septic tank pump, physical pin 37
 
 Install tanker
+sudo cp tanker.service /lib/systemd/system/
+sudo systemctl enable tanker
+sudo systemctl start tanker
 
-npm install tanker
-npm install i2c-bus
+
+npm install tanker  # someday
 
 i2c clock stretching bug:
 ````
 https://github.com/fivdi/i2c-bus/issues/36
 
-The default baudrate on the raspberry Pi is 100000. It can be lowered to 10000 by adding the following line to /boot/config.txt and rebooting the Pi.
+The default baudrate on the raspberry Pi is 100000. It can be lowered to 10000 by adding the following line to /boot/config.txt and rebooting the Pi.  Maxbotix suggests a max baudrate of 50000
 
 dtparam=i2c_baudrate=10000
 
