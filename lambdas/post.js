@@ -83,15 +83,15 @@ exports.handler = (event, context, callback) => {
     console.log("ALERT: critical tank level!");
     // Publish to SNS topic
     let sns = new AWS.SNS();
-    sns.publish({
-        TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
-        Message: "ALERT: Tank level higher than alert limit",
-        Subject: "Tank Level Alert"
-      },
-      function (err, data) {
-        if (err) {
-          console.log("Error sending tank level alert " + err);
-        }
-      });
+    //sns.publish({
+    //    TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
+    //    Message: "ALERT: Tank level higher than alert limit",
+    //    Subject: "Tank Level Alert"
+    //  },
+    //  function (err, data) {
+    //    if (err) {
+    //      console.log("Error sending tank level alert " + err);
+    //    }
+    //  });
   }
 };
