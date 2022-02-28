@@ -82,7 +82,7 @@ exports.handler = (event, context, callback) => {
   if (record.distance_cm < ALERT_LEVEL) {
     console.log("ALERT: critical tank level!");
     // Publish to SNS topic
-    let sns = new AWS.SNS();
+    //let sns = new AWS.SNS();
     //sns.publish({
     //    TopicArn: 'arn:aws:sns:us-east-1:235694731559:tanker-notify',
     //    Message: "ALERT: Tank level higher than alert limit",
