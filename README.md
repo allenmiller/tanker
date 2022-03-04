@@ -170,8 +170,8 @@ Configure gpio ports for Pump monitor
 
 ```bash
 #NB: gpio command has been deprecated
-gpio mode 24 in # Sand filter pump, physical pin 35
-gpio mode 25 in # Septic tank pump, physical pin 37
+#gpio mode 24 in # Sand filter pump, physical pin 35
+#gpio mode 25 in # Septic tank pump, physical pin 37
 
 # see https://raspberry-projects.com/pi/command-line/io-pins-command-line/io-pin-control-from-the-command-line
 
