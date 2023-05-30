@@ -4,42 +4,16 @@
 
 ## Install Raspbian
 
-1. Download and Install the Raspberry Pi Imager (currently v1.6)
+1. Download and Install the Raspberry Pi Imager (currently v1.7.5)
 2. Insert blank micro-SD card
 3. Run RPI Imager
-4. Select "Raspberry Pi OS Desktop (32-bit)"
+4. Select "Raspberry Pi OS Lite (32-bit)"
 5. Choose SD card
-6. Click "Write"
+6. Use the "Advanced" menu to configure hostname, username, password, WIFI network, time zone, and SSH key.
+7. Click "Write"
 
-## Configure Wifi access
 
-  cd /Volumes/boot
-
-  create file wpa_supplicant.conf containing:
-
-  ```text
-  ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-  update_config=1
-  country=US
-  network={
-    ssid="MYSSID"
-    psk="MYPASSWD"
-  }
-  ```
-
-Read the notes at the end of:
-<https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-without-ethernet>
-
-  enable ssh:
-
-  ```bash
-
-  touch ssh
-  cd
-
-  ```
-
-  Unmount/eject /Volumes/boot
+  Unmount/eject /Volumes/bootfs
 
   remove microSD card from mac, insert in Raspberry Pi, power up.
   May need to port scan to find IP address
@@ -58,34 +32,20 @@ Read the notes at the end of:
 ...
   Nmap done: 256 IP addresses (10 hosts up) scanned in 5.29 seconds
   
-  ssh pi@<IP> password raspberry
-  passwd # change default password immediately
+  ssh <username>@<IP> 
+  passwd <password configured earlier>
 ```
 
-Lock down password-based logins and evaluate other security considerations
+
 
 ```bash
-sudo visudo
-```
-
-%sudo   ALL=(ALL:ALL) NOPASSWD: ALL
-
-Add user tanker
-
-```bash
-sudo apt install emacs-nox tmux wiringpi
-sudo adduser tanker
-sudo usermod -a -G adm,sudo,plugdev,users,input,netdev,gpio,i2c,spi tanker
-sudo -u tanker bash
-cd ~tanker
-mkdir .ssh
-chmod 755 .ssh
+sudo apt install emacs-nox tmux git
 cd .ssh
 emacs authorized_keys
   <copy your public key>
 chmod 644 authorized_keys
-exit
 ```
+TODO: what happened to wiringpi?  Do I need it
 
 ```bash
 ssh tanker@<ip>
@@ -112,17 +72,7 @@ sudo service ssh reload
 https://www.raspberrypi.org/documentation/configuration/security.md
 
 
-Give it a hostname and change the default password:
-
-````bash
-
-  sudo hostname tortoise
-  sudo vi /etc/hosts
-   < add hostname (tortoise in this case) to the first line, after localhost >
-
-````
-
-raspi-config enable I2C driver, and set time zone.
+raspi-config enable I2C driver.
 
 Update node.js.  Need to pay attention to processor architecture 'uname -m'
 ````
